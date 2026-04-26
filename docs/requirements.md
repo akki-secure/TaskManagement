@@ -99,6 +99,67 @@
 
 ---
 
+## ユースケース図
+
+```mermaid
+flowchart LR
+  U([ユーザー])
+  U --> A[リストを追加する]
+  U --> B[リスト名を編集する]
+  U --> C[リストを削除する]
+  U --> D[カードを追加する]
+  U --> E[カードを編集する]
+  U --> F[期限・優先度を設定する]
+  U --> G[カードをドラッグ移動する]
+  U --> H[カードを削除する]
+```
+
+---
+
+## E-R図（データ構造）
+
+> ログイン不要・localStorage保存のためDBは持たないが、データの関係性を示す。
+
+```mermaid
+erDiagram
+  BOARD ||--o{ LIST : "持つ"
+  LIST ||--o{ CARD : "持つ"
+
+  BOARD {
+    string title
+  }
+  LIST {
+    string id
+    string title
+    int order
+  }
+  CARD {
+    string id
+    string title
+    string description
+    date dueDate
+    string priority
+    int order
+  }
+```
+
+---
+
+## 画面遷移図
+
+> シングルページアプリのため、モーダルの開閉が主な遷移となる。
+
+```mermaid
+stateDiagram-v2
+  [*] --> ボード画面
+  ボード画面 --> カード編集モーダル : カードをクリック
+  カード編集モーダル --> ボード画面 : 保存 / キャンセル
+  ボード画面 --> リスト名編集 : リスト名をクリック
+  リスト名編集 --> ボード画面 : Enter / フォーカスアウト
+```
+
+---
+
 ## 用語集
 
 | 用語 | 意味 |
