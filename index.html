@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>タスク管理アプリ</title>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', sans-serif;
+      background: #f0f2f5;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ===== HEADER ===== */
+    #app-header {
+      background: #0052cc;
+      color: #fff;
+      padding: 0 20px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    #app-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    #btn-add-list {
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+
+    #btn-add-list:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    /* ===== BOARD ===== */
+    #board {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      overflow-x: auto;
+      overflow-y: hidden;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    /* ===== LIST COLUMN ===== */
+    .list-column {
+      width: 272px;
+      flex-shrink: 0;
+      background: #ebecf0;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 84px);
+    }
+
+    .list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px 8px;
+      gap: 6px;
+    }
+
+    .list-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #172b4d;
+      cursor: pointer;
+      flex: 1;
+      border-radius: 4px;
+      padding: 2px 4px;
+      transition: background 0.12s;
+      word-break: break-all;
+    }
+
+    .list-title:hover {
+      background: rgba(0,0,0,0.06);
+    }
+
+    .list-title-input {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 700;
+      color: #172b4d;
+      border: 2px solid #0052cc;
+      border-radius: 4px;
+      padding: 2px 4px;
+      outline: none;
+      background: #fff;
+      width: 100%;
+    }
+
+    .btn-delete-list {
+      background: transparent;
+      border: none;
+      color: #6b778c;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 4px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.12s, color 0.12s;
+      line-height: 1;
+    }
+
+    .btn-delete-list:hover {
+      background: #eb5a46;
+      color: #fff;
+    }
+
+    /* ===== CARD LIST ===== */
+    .card-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 4px;
+    }
+
+    .card-list-empty {
+      text-align: center;
+      color: #97a0af;
+      font-size: 13px;
+      padding: 12px 0;
+    }
+
+    /* ===== CARD ===== */
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 10px 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+      cursor: pointer;
+      transition: box-shadow 0.15s, transform 0.1s;
+      position: relative;
+    }
+
+    .card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+      transform: translateY(-1px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      color: #172b4d;
+      font-weight: 500;
+      line-height: 1.4;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .btn-delete-card {
+      background: transparent;
+      border: none;
+      color: #b3bac5;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 4px;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.12s, background 0.12s, color 0.12s;
+      line-height: 1;
+    }
+
+    .card:hover .btn-delete-card {
+      opacity: 1;
+    }
+
+    .btn-delete-card:hover {
+      background: #eb5a46;
+      color: #fff;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .card-due {
+      font-size: 12px;
+      color: #5e6c84;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .card-due.overdue {
+      color: #eb5a46;
+      font-weight: 600;
+    }
+
+    .priority-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 20px;
+      color: #fff;
+      letter-spacing: 0.04em;
+    }
+
+    .priority-badge.high   { background: #eb5a46; }
+    .priority-badge.medium { background: #f5a623; }
+    .priority-badge.low    { background: #61bd4f; }
+
+    /* ===== ADD CARD BUTTON ===== */
+    .btn-add-card {
+      background: transparent;
+      border: none;
+      color: #5e6c84;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 8px 12px;
+      text-align: left;
+      border-radius: 0 0 10px 10px;
+      transition: background 0.12s, color 0.12s;
+      width: 100%;
+      margin-top: 4px;
+      flex-shrink: 0;
+    }
+
+    .btn-add-card:hover {
+      background: rgba(0,0,0,0.06);
+      color: #172b4d;
+    }
+
+    /* ===== SORTABLE STATES ===== */
+    .card.sortable-ghost {
+      opacity: 0.3;
+      background: #c8d6e5;
+    }
+
+    .card.sortable-chosen {
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      transform: rotate(1.5deg) translateY(-2px);
+    }
+
+    .card.sortable-drag {
+      opacity: 0;
+    }
+
+    /* ===== MODAL ===== */
+    #modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.15s ease, visibility 0.15s ease;
+    }
+
+    #modal-overlay.open {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    #modal {
+      background: #fff;
+      border-radius: 12px;
+      width: 460px;
+      max-width: 95vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      transform: scale(0.95);
+      transition: transform 0.15s ease;
+    }
+
+    #modal-overlay.open #modal {
+      transform: scale(1);
+    }
+
+    #modal-header {
+      background: #172b4d;
+      color: #fff;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 12px 12px 0 0;
+      flex-shrink: 0;
+    }
+
+    #modal-header h2 {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    #modal-close {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+      border-radius: 6px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.12s;
+      line-height: 1;
+    }
+
+    #modal-close:hover {
+      background: rgba(255,255,255,0.15);
+    }
+
+    #modal-body {
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
+    }
+
+    #modal-body label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #5e6c84;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+
+    #modal-title,
+    #modal-desc,
+    #modal-due {
+      width: 100%;
+      border: 1px solid #dfe1e6;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 14px;
+      color: #172b4d;
+      font-family: inherit;
+      transition: border-color 0.12s, box-shadow 0.12s;
+      outline: none;
+    }
+
+    #modal-title:focus,
+    #modal-desc:focus,
+    #modal-due:focus {
+      border-color: #0052cc;
+      box-shadow: 0 0 0 2px rgba(0,82,204,0.2);
+    }
+
+    #modal-desc {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    #priority-selector {
+      display: flex;
+      gap: 8px;
+    }
+
+    .priority-btn {
+      flex: 1;
+      padding: 8px 0;
+      border: 2px solid #dfe1e6;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      background: #f4f5f7;
+      color: #5e6c84;
+      transition: all 0.12s;
+    }
+
+    .priority-btn:hover {
+      border-color: #aaa;
+    }
+
+    .priority-btn.selected-high   { background: #eb5a46; border-color: #eb5a46; color: #fff; }
+    .priority-btn.selected-medium { background: #f5a623; border-color: #f5a623; color: #fff; }
+    .priority-btn.selected-low    { background: #61bd4f; border-color: #61bd4f; color: #fff; }
+
+    .priority-btn-none {
+      font-size: 12px;
+      color: #97a0af;
+      text-align: center;
+      margin-top: 4px;
+      cursor: pointer;
+      text-decoration: underline;
+      background: none;
+      border: none;
+      font-family: inherit;
+    }
+
+    .priority-btn-none:hover {
+      color: #5e6c84;
+    }
+
+    #modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 14px 18px;
+      border-top: 1px solid #dfe1e6;
+      flex-shrink: 0;
+    }
+
+    #modal-save {
+      background: #0052cc;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 22px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.12s;
+    }
+
+    #modal-save:hover {
+      background: #0747a6;
+    }
+
+    #modal-cancel {
+      background: transparent;
+      color: #5e6c84;
+      border: 1px solid #dfe1e6;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.12s;
+    }
+
+    #modal-cancel:hover {
+      background: #f4f5f7;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 600px) {
+      #board {
+        flex-direction: column;
+        overflow-x: hidden;
+        overflow-y: auto;
+        align-items: stretch;
+      }
+
+      .list-column {
+        width: 100%;
+        max-height: none;
+      }
+
+      #app-title {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header id="app-header">
+    <h1 id="app-title">📋 タスク管理アプリ</h1>
+    <button id="btn-add-list">＋ リスト追加</button>
+  </header>
+
+  <main id="board"></main>
+
+  <div id="modal-overlay">
+    <div id="modal">
+      <header id="modal-header">
+        <h2>カードを編集</h2>
+        <button id="modal-close" title="閉じる">×</button>
+      </header>
+      <div id="modal-body">
+        <div>
+          <label for="modal-title">タイトル</label>
+          <input type="text" id="modal-title" placeholder="タスク名を入力">
+        </div>
+        <div>
+          <label for="modal-desc">説明</label>
+          <textarea id="modal-desc" rows="4" placeholder="詳細・メモを入力"></textarea>
+        </div>
+        <div>
+          <label for="modal-due">期限</label>
+          <input type="date" id="modal-due">
+        </div>
+        <div>
+          <label>優先度</label>
+          <div id="priority-selector">
+            <button class="priority-btn" data-priority="high">高</button>
+            <button class="priority-btn" data-priority="medium">中</button>
+            <button class="priority-btn" data-priority="low">低</button>
+          </div>
+          <button class="priority-btn-none" id="btn-clear-priority">優先度をクリア</button>
+        </div>
+      </div>
+      <footer id="modal-footer">
+        <button id="modal-cancel">キャンセル</button>
+        <button id="modal-save">保存</button>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    // ===== STATE =====
+    let board = { lists: [] };
+    let activeCardRef = null; // { listId, cardId }
+    let selectedPriority = '';
+
+    // ===== UTILS =====
+    function generateId() {
+      try { return crypto.randomUUID(); }
+      catch { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '';
+      const [, m, d] = iso.split('-');
+      return `${parseInt(m)}/${parseInt(d)}`;
+    }
+
+    function isOverdue(iso) {
+      if (!iso) return false;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return new Date(iso) < today;
+    }
+
+    const PRIORITY_LABEL = { high: '高', medium: '中', low: '低' };
+
+    // ===== PERSISTENCE =====
+    function save() {
+      try { localStorage.setItem('trello-board', JSON.stringify(board)); }
+      catch (e) { console.error('保存失敗:', e); }
+    }
+
+    function load() {
+      try {
+        const raw = localStorage.getItem('trello-board');
+        if (raw) return JSON.parse(raw);
+      } catch { /* fallback */ }
+      return defaultData();
+    }
+
+    function defaultData() {
+      const today = new Date();
+      const fmt = (d) => d.toISOString().slice(0, 10);
+      const addDays = (n) => { const d = new Date(today); d.setDate(d.getDate() + n); return fmt(d); };
+      return {
+        lists: [
+          {
+            id: generateId(), title: 'やること', order: 0,
+            cards: [
+              { id: generateId(), title: '読書感想文を書く', description: '夏休みの課題、800字以上', dueDate: addDays(5), priority: 'high', order: 0 },
+              { id: generateId(), title: '買い物リストを作る', description: '', dueDate: addDays(2), priority: 'medium', order: 1 },
+            ]
+          },
+          {
+            id: generateId(), title: '進行中', order: 1,
+            cards: [
+              { id: generateId(), title: '自由研究まとめ', description: '理科の実験結果をまとめる', dueDate: addDays(-1), priority: 'high', order: 0 },
+            ]
+          },
+          {
+            id: generateId(), title: '完了', order: 2,
+            cards: [
+              { id: generateId(), title: '日記を書く', description: '', dueDate: '', priority: 'low', order: 0 },
+            ]
+          },
+        ]
+      };
+    }
+
+    // ===== RENDER =====
+    function renderBoard() {
+      const boardEl = document.getElementById('board');
+      boardEl.innerHTML = '';
+      board.lists.forEach(list => renderList(list, boardEl));
+    }
+
+    function renderList(list, boardEl) {
+      const col = document.createElement('div');
+      col.className = 'list-column';
+      col.dataset.listId = list.id;
+
+      const header = document.createElement('div');
+      header.className = 'list-header';
+
+      const titleSpan = document.createElement('span');
+      titleSpan.className = 'list-title';
+      titleSpan.textContent = list.title;
+      titleSpan.dataset.listId = list.id;
+      titleSpan.title = 'クリックして編集';
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'btn-delete-list';
+      delBtn.dataset.listId = list.id;
+      delBtn.title = 'リストを削除';
+      delBtn.textContent = '×';
+
+      header.appendChild(titleSpan);
+      header.appendChild(delBtn);
+
+      const cardList = document.createElement('div');
+      cardList.className = 'card-list';
+      cardList.dataset.listId = list.id;
+
+      if (list.cards.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'card-list-empty';
+        empty.textContent = 'カードがありません';
+        cardList.appendChild(empty);
+      } else {
+        list.cards.forEach(card => renderCard(card, list.id, cardList));
+      }
+
+      const addCardBtn = document.createElement('button');
+      addCardBtn.className = 'btn-add-card';
+      addCardBtn.dataset.listId = list.id;
+      addCardBtn.textContent = '＋ カード追加';
+
+      col.appendChild(header);
+      col.appendChild(cardList);
+      col.appendChild(addCardBtn);
+      boardEl.appendChild(col);
+
+      initSortable(cardList);
+    }
+
+    function renderCard(card, listId, cardListEl) {
+      const cardEl = document.createElement('div');
+      cardEl.className = 'card';
+      cardEl.dataset.cardId = card.id;
+      cardEl.dataset.listId = listId;
+
+      const cardHeader = document.createElement('div');
+      cardHeader.className = 'card-header';
+
+      const titleEl = document.createElement('span');
+      titleEl.className = 'card-title';
+      titleEl.textContent = card.title || '無題のカード';
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'btn-delete-card';
+      delBtn.dataset.cardId = card.id;
+      delBtn.dataset.listId = listId;
+      delBtn.title = 'カードを削除';
+      delBtn.textContent = '×';
+
+      cardHeader.appendChild(titleEl);
+      cardHeader.appendChild(delBtn);
+      cardEl.appendChild(cardHeader);
+
+      const hasMeta = card.dueDate || card.priority;
+      if (hasMeta) {
+        const meta = document.createElement('div');
+        meta.className = 'card-meta';
+
+        if (card.dueDate) {
+          const due = document.createElement('span');
+          due.className = 'card-due' + (isOverdue(card.dueDate) ? ' overdue' : '');
+          due.textContent = '📅 ' + formatDate(card.dueDate);
+          meta.appendChild(due);
+        }
+
+        if (card.priority) {
+          const badge = document.createElement('span');
+          badge.className = `priority-badge ${card.priority}`;
+          badge.textContent = PRIORITY_LABEL[card.priority];
+          meta.appendChild(badge);
+        }
+
+        cardEl.appendChild(meta);
+      }
+
+      cardListEl.appendChild(cardEl);
+    }
+
+    // ===== SORTABLEJS =====
+    function initSortable(cardListEl) {
+      Sortable.create(cardListEl, {
+        group: 'cards',
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        dragClass: 'sortable-drag',
+        delay: 50,
+        delayOnTouchOnly: true,
+        filter: '.card-list-empty',
+        onEnd(evt) {
+          const fromListId = evt.from.dataset.listId;
+          const toListId = evt.to.dataset.listId;
+          const cardId = evt.item.dataset.cardId;
+
+          moveCard(cardId, fromListId, toListId, evt.newIndex);
+
+          // Remove empty placeholder if it exists in destination
+          const emptyEl = evt.to.querySelector('.card-list-empty');
+          if (emptyEl) emptyEl.remove();
+
+          // Add empty placeholder to source if now empty
+          const fromList = board.lists.find(l => l.id === fromListId);
+          if (fromList && fromList.cards.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'card-list-empty';
+            empty.textContent = 'カードがありません';
+            evt.from.appendChild(empty);
+          }
+
+          save();
+        }
+      });
+    }
+
+    function moveCard(cardId, fromListId, toListId, newIndex) {
+      const fromList = board.lists.find(l => l.id === fromListId);
+      const toList = board.lists.find(l => l.id === toListId);
+      if (!fromList || !toList) return;
+
+      const cardIdx = fromList.cards.findIndex(c => c.id === cardId);
+      if (cardIdx === -1) return;
+
+      const [card] = fromList.cards.splice(cardIdx, 1);
+      toList.cards.splice(newIndex, 0, card);
+
+      fromList.cards.forEach((c, i) => c.order = i);
+      if (fromListId !== toListId) toList.cards.forEach((c, i) => c.order = i);
+    }
+
+    // ===== LIST OPERATIONS =====
+    function addList() {
+      const list = { id: generateId(), title: '新しいリスト', order: board.lists.length, cards: [] };
+      board.lists.push(list);
+      save();
+      renderBoard();
+
+      // Focus the new list's title for immediate rename
+      const cols = document.querySelectorAll('.list-column');
+      const lastCol = cols[cols.length - 1];
+      if (lastCol) {
+        const titleSpan = lastCol.querySelector('.list-title');
+        if (titleSpan) startEditListTitle(list.id, titleSpan);
+      }
+    }
+
+    function deleteList(listId) {
+      board.lists = board.lists.filter(l => l.id !== listId);
+      board.lists.forEach((l, i) => l.order = i);
+      save();
+      renderBoard();
+    }
+
+    function startEditListTitle(listId, titleSpan) {
+      const list = board.lists.find(l => l.id === listId);
+      if (!list) return;
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'list-title-input';
+      input.value = list.title;
+
+      titleSpan.replaceWith(input);
+      input.focus();
+      input.select();
+
+      let committed = false;
+      function commit() {
+        if (committed) return;
+        committed = true;
+        const val = input.value.trim();
+        if (val) list.title = val;
+        save();
+        renderBoard();
+      }
+
+      input.addEventListener('blur', commit);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); commit(); }
+        if (e.key === 'Escape') { committed = true; renderBoard(); }
+      });
+    }
+
+    // ===== CARD OPERATIONS =====
+    function addCard(listId) {
+      const list = board.lists.find(l => l.id === listId);
+      if (!list) return;
+      const card = { id: generateId(), title: '', description: '', dueDate: '', priority: '', order: list.cards.length };
+      list.cards.push(card);
+      save();
+      renderBoard();
+      openModal(listId, card.id);
+    }
+
+    function deleteCard(listId, cardId) {
+      const list = board.lists.find(l => l.id === listId);
+      if (!list) return;
+      list.cards = list.cards.filter(c => c.id !== cardId);
+      list.cards.forEach((c, i) => c.order = i);
+      save();
+      renderBoard();
+    }
+
+    // ===== MODAL =====
+    function openModal(listId, cardId) {
+      const list = board.lists.find(l => l.id === listId);
+      if (!list) return;
+      const card = list.cards.find(c => c.id === cardId);
+      if (!card) return;
+
+      activeCardRef = { listId, cardId };
+
+      document.getElementById('modal-title').value = card.title;
+      document.getElementById('modal-desc').value = card.description;
+      document.getElementById('modal-due').value = card.dueDate;
+      selectPriority(card.priority, false);
+
+      document.getElementById('modal-overlay').classList.add('open');
+      document.getElementById('modal-title').focus();
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.remove('open');
+      activeCardRef = null;
+      selectedPriority = '';
+    }
+
+    function selectPriority(priority, persist = true) {
+      selectedPriority = priority;
+      document.querySelectorAll('.priority-btn').forEach(btn => {
+        btn.classList.remove('selected-high', 'selected-medium', 'selected-low');
+        if (btn.dataset.priority === priority) {
+          btn.classList.add(`selected-${priority}`);
+        }
+      });
+    }
+
+    function saveModal() {
+      if (!activeCardRef) return;
+      const { listId, cardId } = activeCardRef;
+      const list = board.lists.find(l => l.id === listId);
+      if (!list) return;
+      const card = list.cards.find(c => c.id === cardId);
+      if (!card) return;
+
+      const title = document.getElementById('modal-title').value.trim();
+      card.title = title || '無題のカード';
+      card.description = document.getElementById('modal-desc').value;
+      card.dueDate = document.getElementById('modal-due').value;
+      card.priority = selectedPriority;
+
+      save();
+      closeModal();
+      renderBoard();
+    }
+
+    // ===== EVENT BINDING =====
+    function bindGlobalEvents() {
+      document.getElementById('btn-add-list').addEventListener('click', addList);
+      document.getElementById('modal-save').addEventListener('click', saveModal);
+      document.getElementById('modal-cancel').addEventListener('click', closeModal);
+      document.getElementById('modal-close').addEventListener('click', closeModal);
+      document.getElementById('btn-clear-priority').addEventListener('click', () => selectPriority(''));
+
+      document.getElementById('modal-overlay').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeModal();
+      });
+
+      document.getElementById('modal-title').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') saveModal();
+        if (e.key === 'Escape') closeModal();
+      });
+
+      document.querySelectorAll('.priority-btn').forEach(btn => {
+        btn.addEventListener('click', () => selectPriority(btn.dataset.priority));
+      });
+
+      // Delegated events on #board
+      document.getElementById('board').addEventListener('click', (e) => {
+        const deleteListBtn = e.target.closest('.btn-delete-list');
+        const addCardBtn    = e.target.closest('.btn-add-card');
+        const deleteCardBtn = e.target.closest('.btn-delete-card');
+        const listTitle     = e.target.closest('.list-title');
+        const card          = e.target.closest('.card');
+
+        if (deleteListBtn) {
+          deleteList(deleteListBtn.dataset.listId);
+        } else if (addCardBtn) {
+          addCard(addCardBtn.dataset.listId);
+        } else if (deleteCardBtn) {
+          e.stopPropagation();
+          deleteCard(deleteCardBtn.dataset.listId, deleteCardBtn.dataset.cardId);
+        } else if (listTitle) {
+          startEditListTitle(listTitle.dataset.listId, listTitle);
+        } else if (card && !e.target.closest('button')) {
+          openModal(card.dataset.listId, card.dataset.cardId);
+        }
+      });
+    }
+
+    // ===== INIT =====
+    function initApp() {
+      board = load();
+      renderBoard();
+      bindGlobalEvents();
+    }
+
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+
+</body>
+</html>
