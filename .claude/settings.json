@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(rm *)",
+      "Bash(mv *)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard *)",
+      "Bash(git clean -f *)",
+      "Bash(git branch -D *)",
+      "Bash(sudo *)",
+      "Bash(kill *)",
+      "Bash(pkill *)",
+      "Bash(chmod *)",
+      "Bash(chown *)"
+    ]
+  }
+}
