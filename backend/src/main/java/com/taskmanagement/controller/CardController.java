@@ -5,6 +5,7 @@ import com.taskmanagement.service.CardService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -15,6 +16,16 @@ public class CardController {
 
     public CardController(CardService cardService) {
         this.cardService = cardService;
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Card> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(cardService.findById(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Card>> getByListId(@RequestParam Long listId) {
+        return ResponseEntity.ok(cardService.findByListId(listId));
     }
 
     @PostMapping
