@@ -1,62 +1,101 @@
 # TaskManagement
 
-Trello風のタスク管理アプリです。
+Trello風のカンバンボード型タスク管理アプリです。
+
+チームやプロジェクトのタスクを「リスト（列）」と「カード」で視覚的に整理し、ドラッグ&ドロップで進捗を管理できます。カードには期限日・優先度（高/中/低）を設定でき、期限切れのカードは自動でハイライト表示されます。
+
+## 機能
+
+- ボードの作成・削除・名前変更
+- リスト（カラム）の追加・削除・名前変更
+- カードの作成・編集・削除
+- カードへの期限日・優先度設定
+- ドラッグ&ドロップによるカード移動
+
+## 技術スタック
+
+| 役割 | 技術 |
+|---|---|
+| フロントエンド | React 19 + Vite |
+| バックエンド | Spring Boot 3.4 + Java 21 |
+| データベース | PostgreSQL 16 |
+| インフラ | Docker / docker-compose |
 
 ## 必要な環境
 
-- Node.js（インストールされていない場合は https://nodejs.org からダウンロード）
-- Java 17以上（バックエンドを起動する場合）
-- PostgreSQL（バックエンドを起動する場合）
+- Node.js 18以上
+- Java 21以上
+- Docker（PostgreSQL コンテナ起動用）
 
 ## 起動方法
 
-### フロントエンド（localhost:3000）
+### 一括起動（Claude Code スキル）
 
-1. このリポジトリをクローン
-   ```
-   git clone <リポジトリURL>
-   ```
-
-2. プロジェクトフォルダに移動
-   ```
-   cd TaskManagement
-   ```
-
-3. アプリを起動
-   ```
-   npm start
-   ```
-
-4. ブラウザで以下のURLを開く
-   ```
-   http://localhost:3000
-   ```
-
-### バックエンド（localhost:8080）
-
-npm を使わずに Spring Boot サーバーを起動する場合は、`backend` フォルダで以下を実行します。
+Claude Code を使っている場合は、以下のスキルコマンド一つで DB・バックエンド・フロントエンドをすべて起動できます。
 
 ```
+/start
+```
+
+各サービスの起動確認まで自動で行います。詳細は [.claude/skills/start/SKILL.md](.claude/skills/start/SKILL.md) を参照してください。
+
+### 手動起動
+
+#### 1. データベース（PostgreSQL）
+
+```bash
+docker compose up -d
+docker compose ps   # State: running を確認
+```
+
+#### 2. バックエンド（Spring Boot） — ポート 8080
+
+```bash
 cd backend
 ./gradlew bootRun
 ```
 
 Windows の場合:
-```
+```bash
 cd backend
 gradlew.bat bootRun
 ```
 
-ブラウザまたは API クライアントで以下の URL にアクセスできます:
+起動確認:
 ```
-http://localhost:8080
+http://localhost:8080/api/boards
 ```
 
-> PostgreSQL が起動済みであることを確認してください。接続設定は `backend/src/main/resources/application.properties` で変更できます。
+#### 3. フロントエンド（React + Vite） — ポート 5173
+
+```bash
+cd frontend
+npm install   # 初回のみ
+npm run dev
+```
+
+ブラウザで開く:
+```
+http://localhost:5173
+```
+
+> バックエンドの接続設定は `backend/src/main/resources/application.properties` で変更できます。
 
 ## 終了方法
 
-ターミナルで以下のキーを押す
+各ターミナルで `Ctrl + C`（Mac は `Command + C`）を押す。  
+DB コンテナを停止する場合:
 
-- Mac: `Command + C`
-- Windows: `Ctrl + C`
+```bash
+docker compose down
+```
+
+## Claude Code スキル
+
+このプロジェクトには Claude Code 用のカスタムスキルが含まれています。
+
+| スキル | コマンド | 説明 |
+|---|---|---|
+| 一括起動 | `/start` | DB・バックエンド・フロントエンドをすべて起動し、起動確認まで行う |
+
+スキルのソースは [.claude/skills/](.claude/skills/) に格納されています。
