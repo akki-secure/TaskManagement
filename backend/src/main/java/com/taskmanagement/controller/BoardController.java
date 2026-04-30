@@ -21,7 +21,7 @@ public class BoardController {
     @GetMapping
     public List<Board> getMyBoards(Authentication auth) {
         Long userId = (Long) auth.getPrincipal();
-        return boardRepository.findByUserId(userId);
+        return boardRepository.findByUser_Id(userId);
     }
 
     @GetMapping("/{id}")
