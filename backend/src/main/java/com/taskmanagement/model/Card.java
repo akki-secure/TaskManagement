@@ -1,6 +1,7 @@
 package com.taskmanagement.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
@@ -52,4 +53,8 @@ public class Card {
 
     public TaskList getList() { return list; }
     public void setList(TaskList list) { this.list = list; }
+
+    // Jackson uses @JsonProperty; non-getX name avoids Spring Data JPA property resolution conflict
+    @JsonProperty("listId")
+    public Long listId() { return list != null ? list.getId() : null; }
 }

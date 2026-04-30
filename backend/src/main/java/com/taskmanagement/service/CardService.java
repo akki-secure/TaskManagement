@@ -23,6 +23,20 @@ public class CardService {
         this.listRepository = listRepository;
     }
 
+    @Transactional(readOnly = true)
+    public Card findById(Long id) {
+        return cardRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Card not found: " + id));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Card> findByListId(Long listId) {
+        if (!listRepository.existsById(listId)) {
+            throw new RuntimeException("List not found: " + listId);
+        }
+        return cardRepository.findByListIdOrderByPosition(listId);
+    }
+
     public Card create(Long listId) {
         TaskList list = listRepository.findById(listId)
                 .orElseThrow(() -> new RuntimeException("List not found: " + listId));
