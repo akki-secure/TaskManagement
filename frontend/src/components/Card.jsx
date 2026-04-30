@@ -20,34 +20,37 @@ export default function Card({ card, index, onEdit, onDelete }) {
     <Draggable draggableId={String(card.id)} index={index}>
       {(provided, snapshot) => (
         <div
-          className={`card ${snapshot.isDragging ? 'sortable-chosen' : ''}`}
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          onClick={(e) => { if (!e.target.closest('button')) onEdit(card) }}
         >
-          <div className="card-header">
-            <span className="card-title">{card.title || '無題のカード'}</span>
-            <button
-              className="btn-delete-card"
-              onClick={e => { e.stopPropagation(); onDelete(card.id) }}
-              title="カードを削除"
-            >×</button>
-          </div>
-          {(card.dueDate || card.priority) && (
-            <div className="card-meta">
-              {card.dueDate && (
-                <span className={`card-due ${isOverdue(card.dueDate) ? 'overdue' : ''}`}>
-                  📅 {formatDate(card.dueDate)}
-                </span>
-              )}
-              {card.priority && (
-                <span className={`priority-badge ${card.priority}`}>
-                  {PRIORITY_LABEL[card.priority]}
-                </span>
-              )}
+          <div
+            className={`card ${snapshot.isDragging ? 'sortable-chosen' : ''}`}
+            onClick={(e) => { if (!e.target.closest('button')) onEdit(card) }}
+          >
+            <div className="card-header">
+              <span className="card-title">{card.title || '無題のカード'}</span>
+              <button
+                className="btn-delete-card"
+                onClick={e => { e.stopPropagation(); onDelete(card.id) }}
+                title="カードを削除"
+              >×</button>
             </div>
-          )}
+            {(card.dueDate || card.priority) && (
+              <div className="card-meta">
+                {card.dueDate && (
+                  <span className={`card-due ${isOverdue(card.dueDate) ? 'overdue' : ''}`}>
+                    📅 {formatDate(card.dueDate)}
+                  </span>
+                )}
+                {card.priority && (
+                  <span className={`priority-badge ${card.priority}`}>
+                    {PRIORITY_LABEL[card.priority]}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </Draggable>
