@@ -1,0 +1,69 @@
+name: Bug Report
+description: バグや予期しない動作を報告する
+title: "fix: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **送信前に:** 同じイシューがすでに存在しないか確認してください。
+
+  - type: textarea
+    id: description
+    attributes:
+      label: バグの内容
+      description: 何が起きましたか？何を期待していましたか？
+      placeholder: |
+        期待した動作: ...
+        実際の動作: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 再現手順
+      description: バグを再現するための最小限の手順
+      placeholder: |
+        1. ...へ移動
+        2. ...をクリック
+        3. エラーが発生
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 影響範囲
+      options:
+        - フロントエンド (React/Vite)
+        - バックエンド (Spring Boot)
+        - データベース (PostgreSQL)
+        - Docker / docker-compose
+        - その他
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: 環境
+      description: OS、ブラウザ、Javaバージョン、Nodeバージョンなど
+      placeholder: "例: macOS 15, Chrome 124, Java 21, Node 20"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: エラーログ / スクリーンショット
+      description: 関連するログ、スタックトレース、またはスクリーンショット
+      render: shell
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 確認事項
+      options:
+        - label: 既存イシューを検索し、重複でないことを確認した
+          required: true
+        - label: このバグを安定して再現できる
+          required: false
