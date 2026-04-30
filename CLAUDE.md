@@ -139,7 +139,7 @@ git push origin feature/issue-12-add-card-due-date
 
 ```
 TaskManagement/
-├── frontend/          # React 19 + Vite（ポート 3000）
+├── frontend/          # React 19 + Vite（ポート 5173）
 │   └── src/
 ├── backend/           # Spring Boot 3.4 + Java 21 + PostgreSQL（ポート 8080）
 │   └── src/
