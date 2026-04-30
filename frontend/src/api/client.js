@@ -23,6 +23,10 @@ api.interceptors.response.use(
 export const register = (data) => api.post('/auth/register', data).then(r => r.data)
 export const loginApi = (data) => api.post('/auth/login', data).then(r => r.data)
 
+export const getMe = () => api.get('/user/me').then(r => r.data)
+export const updateProfile = (data) => api.put('/user/profile', data).then(r => r.data)
+export const changePassword = (data) => api.put('/user/password', data)
+
 export const getMyBoards = () => api.get('/boards').then(r => r.data)
 export const getBoard = (id) => api.get(`/boards/${id}`).then(r => r.data)
 

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { DragDropContext } from '@hello-pangea/dnd'
 import List from './components/List'
 import CardModal from './components/CardModal'
+import AccountSettingsModal from './components/AccountSettingsModal'
 import {
     getMyBoards, getBoard, createList, updateList, deleteList,
     createCard, updateCard, deleteCard, moveCard
@@ -12,6 +13,7 @@ import './App.css'
 export default function App() {
     const [board, setBoard] = useState(null)
     const [editingCard, setEditingCard] = useState(null)
+    const [showSettings, setShowSettings] = useState(false)
     const { auth, logout } = useAuth()
 
     const loadBoard = useCallback(() => {
@@ -100,11 +102,15 @@ export default function App() {
             <header id="app-header">
                 <h1 id="app-title">📋 タスク管理アプリ</h1>
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                    <span style={{ color: '#fff', fontSize: '0.9rem' }}>
-                        {auth?.user?.username}
-                    </span>
                     <button
-                        style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', padding: '6px 12px', borderRadius: 6, cursor: 'pointer' }}
+                        className="header-user-btn"
+                        onClick={() => setShowSettings(true)}
+                        title="アカウント設定"
+                    >
+                        {auth?.user?.username}
+                    </button>
+                    <button
+                        className="header-ghost-btn"
                         onClick={logout}
                     >
                         ログアウト
@@ -135,6 +141,10 @@ export default function App() {
                     onSave={handleSaveCard}
                     onClose={() => setEditingCard(null)}
                 />
+            )}
+
+            {showSettings && (
+                <AccountSettingsModal onClose={() => setShowSettings(false)} />
             )}
         </>
     )
