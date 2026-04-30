@@ -19,3 +19,23 @@ CREATE TABLE IF NOT EXISTS cards (
     priority    VARCHAR(10),
     position    INTEGER      NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS users (
+    id            BIGSERIAL    PRIMARY KEY,
+    username      VARCHAR(50)  NOT NULL UNIQUE,
+    email         VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255),
+    created_at    TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS passkey_credentials (
+    id              BIGSERIAL PRIMARY KEY,
+    user_id         BIGINT    NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    credential_id   TEXT      NOT NULL UNIQUE,
+    public_key_cose BYTEA     NOT NULL,
+    sign_count      BIGINT    NOT NULL DEFAULT 0,
+    created_at      TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE boards
+    ADD COLUMN IF NOT EXISTS user_id BIGINT REFERENCES users(id) ON DELETE CASCADE;
