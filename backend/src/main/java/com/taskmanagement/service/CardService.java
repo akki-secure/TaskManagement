@@ -67,6 +67,10 @@ public class CardService {
             String p = (String) body.get("priority");
             card.setPriority(p == null || p.isBlank() ? null : p);
         }
+        if (body.containsKey("status")) {
+            String s = (String) body.get("status");
+            card.setStatus(s == null || s.isBlank() ? "todo" : s);
+        }
         return cardRepository.save(card);
     }
 

@@ -244,6 +244,18 @@ body {
 .priority-badge.medium { background: #f5a623; }
 .priority-badge.low    { background: #61bd4f; }
 
+.status-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  color: #fff;
+  letter-spacing: 0.04em;
+}
+.status-badge.status-todo        { background: #8e9ba8; }
+.status-badge.status-in-progress { background: #0079bf; }
+.status-badge.status-done        { background: #61bd4f; }
+
 .btn-add-card {
   background: transparent;
   border: none;
@@ -407,6 +419,38 @@ body {
 
 .priority-btn-none:hover {
   color: #5e6c84;
+}
+
+.status-selector {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.status-btn {
+  font-size: 13px;
+  padding: 5px 14px;
+  border-radius: 4px;
+  border: 1.5px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  color: #5e6c84;
+  transition: all 0.12s;
+}
+
+.status-btn:hover { border-color: #aaa; }
+
+.status-btn.selected-todo        { background: #8e9ba8; border-color: #8e9ba8; color: #fff; }
+.status-btn.selected-in_progress { background: #0079bf; border-color: #0079bf; color: #fff; }
+.status-btn.selected-done        { background: #61bd4f; border-color: #61bd4f; color: #fff; }
+
+.card-timestamps {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  color: #97a0af;
+  margin-top: 4px;
 }
 
 .modal-footer {
