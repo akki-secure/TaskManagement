@@ -1,6 +1,8 @@
 import { Draggable } from '@hello-pangea/dnd'
 
 const PRIORITY_LABEL = { high: '高', medium: '中', low: '低' }
+const STATUS_LABEL = { todo: '未完了', in_progress: '進行中', done: '完了' }
+const STATUS_CLASS = { todo: 'status-todo', in_progress: 'status-in-progress', done: 'status-done' }
 
 function isOverdue(dateStr) {
   if (!dateStr) return false
@@ -36,20 +38,21 @@ export default function Card({ card, index, onEdit, onDelete }) {
                 title="カードを削除"
               >×</button>
             </div>
-            {(card.dueDate || card.priority) && (
-              <div className="card-meta">
-                {card.dueDate && (
-                  <span className={`card-due ${isOverdue(card.dueDate) ? 'overdue' : ''}`}>
-                    📅 {formatDate(card.dueDate)}
-                  </span>
-                )}
-                {card.priority && (
-                  <span className={`priority-badge ${card.priority}`}>
-                    {PRIORITY_LABEL[card.priority]}
-                  </span>
-                )}
-              </div>
-            )}
+            <div className="card-meta">
+              <span className={`status-badge ${STATUS_CLASS[card.status] || STATUS_CLASS.todo}`}>
+                {STATUS_LABEL[card.status] || '未完了'}
+              </span>
+              {card.dueDate && (
+                <span className={`card-due ${isOverdue(card.dueDate) ? 'overdue' : ''}`}>
+                  📅 {formatDate(card.dueDate)}
+                </span>
+              )}
+              {card.priority && (
+                <span className={`priority-badge ${card.priority}`}>
+                  {PRIORITY_LABEL[card.priority]}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       )}

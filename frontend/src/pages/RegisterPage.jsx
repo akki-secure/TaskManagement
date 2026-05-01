@@ -7,6 +7,7 @@ export default function RegisterPage() {
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
     const { login } = useAuth()
@@ -15,6 +16,10 @@ export default function RegisterPage() {
     async function handleSubmit(e) {
         e.preventDefault()
         setError('')
+        if (password !== confirmPassword) {
+            setError('パスワードが一致しません')
+            return
+        }
         setLoading(true)
         try {
             const data = await register({ username, email, password })
@@ -56,6 +61,16 @@ export default function RegisterPage() {
                     placeholder="パスワード（8文字以上）"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
+                    required
+                    minLength={8}
+                    autoComplete="new-password"
+                />
+                <input
+                    className="auth-input"
+                    type="password"
+                    placeholder="パスワード（確認用）"
+                    value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
                     required
                     minLength={8}
                     autoComplete="new-password"
