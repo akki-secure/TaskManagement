@@ -75,7 +75,28 @@ public class CardService {
     }
 
     public void delete(Long id) {
-        cardRepository.deleteById(id);
+        Card card = cardRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Card not found: " + id));
+        card.setDeletedAt(java.time.LocalDateTime.now());
+        cardRepository.save(card);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Card> findTrashed() {
+        return cardRepository.findTrashedCards();
+    }
+
+    public Card restore(Long id) {
+        Card card = cardRepository.findTrashedById(id)
+                .orElseThrow(() -> new RuntimeException("Trashed card not found: " + id));
+        card.setDeletedAt(null);
+        return cardRepository.save(card);
+    }
+
+    public void deletePermanently(Long id) {
+        Card card = cardRepository.findTrashedById(id)
+                .orElseThrow(() -> new RuntimeException("Trashed card not found: " + id));
+        cardRepository.delete(card);
     }
 
     public Card move(Long cardId, Long toListId, int newPosition) {

@@ -3,6 +3,7 @@ import { DragDropContext } from '@hello-pangea/dnd'
 import List from './components/List'
 import CardModal from './components/CardModal'
 import AccountSettingsModal from './components/AccountSettingsModal'
+import TrashModal from './components/TrashModal'
 import {
     getMyBoards, getBoard, createList, updateList, deleteList,
     createCard, updateCard, deleteCard, moveCard
@@ -14,6 +15,7 @@ export default function App() {
     const [board, setBoard] = useState(null)
     const [editingCard, setEditingCard] = useState(null)
     const [showSettings, setShowSettings] = useState(false)
+    const [showTrash, setShowTrash] = useState(false)
     const { auth, logout } = useAuth()
 
     const loadBoard = useCallback(() => {
@@ -75,6 +77,21 @@ export default function App() {
         setEditingCard(null)
     }
 
+    function handleRestoreCard(restoredCard) {
+        setBoard(prev => ({
+            ...prev,
+            lists: prev.lists.map(l =>
+                l.id === restoredCard.listId
+                    ? { ...l, cards: [...l.cards, restoredCard].sort((a, b) => a.position - b.position) }
+                    : l
+            )
+        }))
+    }
+
+    function handleRestoreList() {
+        loadBoard()
+    }
+
     async function handleDragEnd(result) {
         const { source, destination, draggableId } = result
         if (!destination) return
@@ -115,6 +132,12 @@ export default function App() {
                     >
                         ログアウト
                     </button>
+                    <button
+                        className="header-ghost-btn"
+                        onClick={() => setShowTrash(true)}
+                    >
+                        🗑 ゴミ箱
+                    </button>
                     <button id="btn-add-list" onClick={handleAddList}>＋ リスト追加</button>
                 </div>
             </header>
@@ -145,6 +168,14 @@ export default function App() {
 
             {showSettings && (
                 <AccountSettingsModal onClose={() => setShowSettings(false)} />
+            )}
+
+            {showTrash && (
+                <TrashModal
+                    onClose={() => setShowTrash(false)}
+                    onRestoreCard={handleRestoreCard}
+                    onRestoreList={handleRestoreList}
+                />
             )}
         </>
     )

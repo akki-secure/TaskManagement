@@ -3,11 +3,14 @@ package com.taskmanagement.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import org.hibernate.annotations.SQLRestriction;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "lists")
+@SQLRestriction("deleted_at IS NULL")
 public class TaskList {
 
     @Id
@@ -19,6 +22,9 @@ public class TaskList {
 
     @Column(nullable = false)
     private Integer position;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", nullable = false)
@@ -38,6 +44,9 @@ public class TaskList {
 
     public Integer getPosition() { return position; }
     public void setPosition(Integer position) { this.position = position; }
+
+    public LocalDateTime getDeletedAt() { return deletedAt; }
+    public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
 
     public Board getBoard() { return board; }
     public void setBoard(Board board) { this.board = board; }
