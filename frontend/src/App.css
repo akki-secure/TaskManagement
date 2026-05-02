@@ -512,3 +512,54 @@ body {
     font-size: 15px;
   }
 }
+
+/* ===== TRASH DROP ZONE ===== */
+.trash-zone {
+  display: none;
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+  gap: 10px;
+  background: rgba(235, 90, 70, 0.12);
+  border: 2px dashed #eb5a46;
+  border-radius: 14px;
+  padding: 14px 36px;
+  color: #eb5a46;
+  font-size: 15px;
+  font-weight: 600;
+  pointer-events: none;
+  transition: background 0.15s, border-color 0.15s;
+  z-index: 200;
+  white-space: nowrap;
+}
+
+.trash-zone.visible {
+  display: flex;
+  pointer-events: all;
+}
+
+.trash-zone.over {
+  background: rgba(235, 90, 70, 0.28);
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+/* ===== CARD MODAL DELETE BUTTON ===== */
+.modal-delete {
+  background: transparent;
+  color: #eb5a46;
+  border: 1px solid #eb5a46;
+  border-radius: 6px;
+  padding: 7px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.modal-delete:hover {
+  background: #eb5a46;
+  color: #fff;
+}
