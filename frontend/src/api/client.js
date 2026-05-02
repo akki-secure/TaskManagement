@@ -50,10 +50,3 @@ export const deleteCard = (id) => api.delete(`/cards/${id}`)
 
 export const moveCard = (id, toListId, position) =>
     api.put(`/cards/${id}/move`, { toListId, position }).then(r => r.data)
-
-export const getTrashedCards = () => api.get('/trash/cards').then(r => r.data)
-export const getTrashedLists = () => api.get('/trash/lists').then(r => r.data)
-export const restoreCard = (id) => api.put(`/trash/cards/${id}/restore`).then(r => r.data)
-export const restoreList = (id) => api.put(`/trash/lists/${id}/restore`).then(r => r.data)
-export const deleteCardPermanently = (id) => api.delete(`/trash/cards/${id}`)
-export const deleteListPermanently = (id) => api.delete(`/trash/lists/${id}`)
