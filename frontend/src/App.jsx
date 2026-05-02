@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { DragDropContext } from '@hello-pangea/dnd'
+import { DragDropContext, Droppable } from '@hello-pangea/dnd'
 import List from './components/List'
 import CardModal from './components/CardModal'
 import AccountSettingsModal from './components/AccountSettingsModal'
@@ -14,6 +14,7 @@ export default function App() {
     const [board, setBoard] = useState(null)
     const [editingCard, setEditingCard] = useState(null)
     const [showSettings, setShowSettings] = useState(false)
+    const [isDragging, setIsDragging] = useState(false)
     const { auth, logout } = useAuth()
 
     const loadBoard = useCallback(() => {
@@ -76,12 +77,24 @@ export default function App() {
         setEditingCard(null)
     }
 
+    function handleDragStart() {
+        setIsDragging(true)
+    }
+
     async function handleDragEnd(result) {
+        setIsDragging(false)
         const { source, destination, draggableId } = result
         if (!destination) return
-        if (source.droppableId === destination.droppableId && source.index === destination.index) return
 
         const cardId = parseInt(draggableId)
+
+        if (destination.droppableId === 'trash') {
+            await handleDeleteCard(cardId)
+            return
+        }
+
+        if (source.droppableId === destination.droppableId && source.index === destination.index) return
+
         const toListId = parseInt(destination.droppableId)
 
         setBoard(prev => {
@@ -110,17 +123,12 @@ export default function App() {
                     >
                         {auth?.user?.username}
                     </button>
-                    <button
-                        className="header-ghost-btn"
-                        onClick={logout}
-                    >
-                        ログアウト
-                    </button>
+                    <button className="header-ghost-btn" onClick={logout}>ログアウト</button>
                     <button id="btn-add-list" onClick={handleAddList}>＋ リスト追加</button>
                 </div>
             </header>
 
-            <DragDropContext onDragEnd={handleDragEnd}>
+            <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
                 <main id="board">
                     {board.lists.map(list => (
                         <List
@@ -134,6 +142,20 @@ export default function App() {
                         />
                     ))}
                 </main>
+
+                <Droppable droppableId="trash">
+                    {(provided, snapshot) => (
+                        <div
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                            className={`trash-zone${isDragging ? ' visible' : ''}${snapshot.isDraggingOver ? ' over' : ''}`}
+                        >
+                            🗑
+                            <span>{snapshot.isDraggingOver ? 'ここで離すと削除' : 'ここにドラッグして削除'}</span>
+                            {provided.placeholder}
+                        </div>
+                    )}
+                </Droppable>
             </DragDropContext>
 
             {editingCard && (
