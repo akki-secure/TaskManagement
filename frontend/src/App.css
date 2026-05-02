@@ -512,3 +512,21 @@ body {
     font-size: 15px;
   }
 }
+
+/* ===== CARD MODAL DELETE BUTTON ===== */
+.modal-delete {
+  background: transparent;
+  color: #eb5a46;
+  border: 1px solid #eb5a46;
+  border-radius: 6px;
+  padding: 7px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.modal-delete:hover {
+  background: #eb5a46;
+  color: #fff;
+}

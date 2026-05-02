@@ -12,7 +12,7 @@ function formatDateTime(dt) {
   return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
-export default function CardModal({ card, onSave, onClose }) {
+export default function CardModal({ card, onSave, onClose, onDelete }) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [dueDate, setDueDate] = useState('')
@@ -128,8 +128,13 @@ export default function CardModal({ card, onSave, onClose }) {
           )}
         </div>
         <footer className="modal-footer">
-          <button className="modal-cancel" onClick={onClose}>キャンセル</button>
-          <button className="modal-save" onClick={handleSave}>保存</button>
+          {onDelete && (
+            <button className="modal-delete" onClick={() => onDelete(card.id)}>削除</button>
+          )}
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+            <button className="modal-cancel" onClick={onClose}>キャンセル</button>
+            <button className="modal-save" onClick={handleSave}>保存</button>
+          </div>
         </footer>
       </div>
     </div>

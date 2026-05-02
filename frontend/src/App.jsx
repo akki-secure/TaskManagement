@@ -61,6 +61,7 @@ export default function App() {
             ...prev,
             lists: prev.lists.map(l => ({ ...l, cards: l.cards.filter(c => c.id !== cardId) }))
         }))
+        if (editingCard?.id === cardId) setEditingCard(null)
     }
 
     async function handleSaveCard(data) {
@@ -140,6 +141,7 @@ export default function App() {
                     card={editingCard}
                     onSave={handleSaveCard}
                     onClose={() => setEditingCard(null)}
+                    onDelete={handleDeleteCard}
                 />
             )}
 

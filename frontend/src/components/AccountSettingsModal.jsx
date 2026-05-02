@@ -14,6 +14,7 @@ export default function AccountSettingsModal({ onClose }) {
     const [currentPassword, setCurrentPassword] = useState('')
     const [newPassword, setNewPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
+    const [showPassword, setShowPassword] = useState(false)
     const [passwordMsg, setPasswordMsg] = useState(null)
     const [passwordLoading, setPasswordLoading] = useState(false)
 
@@ -121,19 +122,29 @@ export default function AccountSettingsModal({ onClose }) {
                                 {passwordMsg.text}
                             </p>
                         )}
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
+                            <button
+                                type="button"
+                                className="auth-pw-toggle"
+                                onClick={() => setShowPassword(v => !v)}
+                                tabIndex={-1}
+                            >
+                                {showPassword ? '非表示' : '表示'}
+                            </button>
+                        </div>
                         <label className="settings-label">現在のパスワード</label>
                         <input
                             className="auth-input"
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             value={currentPassword}
                             onChange={e => setCurrentPassword(e.target.value)}
                             required
                             autoComplete="current-password"
                         />
-                        <label className="settings-label">新しいパスワード（8文字以上）</label>
+                        <label className="settings-label">新しいパスワード（8文字以上・日本語も使用可）</label>
                         <input
                             className="auth-input"
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             value={newPassword}
                             onChange={e => setNewPassword(e.target.value)}
                             required
@@ -142,7 +153,7 @@ export default function AccountSettingsModal({ onClose }) {
                         <label className="settings-label">新しいパスワード（確認）</label>
                         <input
                             className="auth-input"
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             value={confirmPassword}
                             onChange={e => setConfirmPassword(e.target.value)}
                             required
