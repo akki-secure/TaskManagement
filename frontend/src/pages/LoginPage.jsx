@@ -26,10 +26,6 @@ export default function LoginPage() {
         }
     }
 
-    function handlePasskey() {
-        setError('パスキー認証は現在準備中です')
-    }
-
     return (
         <div className="auth-page">
             <form className="auth-form" onSubmit={handleSubmit}>
@@ -55,9 +51,6 @@ export default function LoginPage() {
                 />
                 <button className="auth-btn-primary" type="submit" disabled={loading}>
                     {loading ? 'ログイン中...' : 'ログイン'}
-                </button>
-                <button className="auth-btn-secondary" type="button" onClick={handlePasskey}>
-                    🔑 パスキーでログイン
                 </button>
                 <p className="auth-link">
                     アカウントをお持ちでない方は <Link to="/register">新規登録</Link>
