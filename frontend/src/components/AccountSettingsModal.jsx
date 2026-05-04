@@ -21,8 +21,8 @@ export default function AccountSettingsModal({ onClose }) {
     async function handleProfileSave(e) {
         e.preventDefault()
         setProfileMsg(null)
-        if (!username.match(/^[a-zA-Z0-9_぀-ゟ゠-ヿ一-鿿㐀-䶿]{3,50}$/)) {
-            setProfileMsg({ type: 'error', text: 'ユーザー名は3〜50文字で入力してください（英数字・アンダースコア・日本語が使えます）' })
+        if (!username.match(/^[a-zA-Z0-9_々぀-ゟ゠-ヿ一-鿿㐀-䶿]{2,50}$/u)) {
+            setProfileMsg({ type: 'error', text: 'ユーザー名は2〜50文字で入力してください（英数字・アンダースコア・日本語が使えます）' })
             return
         }
         setProfileLoading(true)
@@ -88,14 +88,14 @@ export default function AccountSettingsModal({ onClose }) {
                                 {profileMsg.text}
                             </p>
                         )}
-                        <label className="settings-label">ユーザー名 <span className="settings-hint">（3〜50文字・日本語も使用可）</span></label>
+                        <label className="settings-label">ユーザー名 <span className="settings-hint">（2〜50文字・日本語も使用可）</span></label>
                         <input
                             className="auth-input"
                             type="text"
                             value={username}
                             onChange={e => setUsername(e.target.value)}
                             required
-                            minLength={3}
+                            minLength={2}
                             maxLength={50}
                             autoComplete="username"
                         />

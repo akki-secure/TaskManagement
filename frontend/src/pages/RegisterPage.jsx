@@ -41,7 +41,7 @@ export default function RegisterPage() {
                 <input
                     className="auth-input"
                     type="text"
-                    placeholder="ユーザー名（3〜50文字・日本語も使用可）"
+                    placeholder="ユーザー名（2〜50文字・日本語も使用可）"
                     value={username}
                     onChange={e => setUsername(e.target.value)}
                     required
