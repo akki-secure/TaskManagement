@@ -3,6 +3,7 @@ package com.taskmanagement.controller;
 import com.taskmanagement.model.Card;
 import com.taskmanagement.service.CardService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,26 +30,30 @@ public class CardController {
     }
 
     @PostMapping
-    public ResponseEntity<Card> create(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<Card> create(@RequestBody Map<String, Object> body, Authentication auth) {
+        Long userId = (Long) auth.getPrincipal();
         Long listId = Long.valueOf(body.get("listId").toString());
-        return ResponseEntity.ok(cardService.create(listId));
+        return ResponseEntity.ok(cardService.create(listId, userId));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Card> update(@PathVariable Long id, @RequestBody Map<String, Object> body) {
-        return ResponseEntity.ok(cardService.update(id, body));
+    public ResponseEntity<Card> update(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        Long userId = (Long) auth.getPrincipal();
+        return ResponseEntity.ok(cardService.update(id, body, userId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        cardService.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id, Authentication auth) {
+        Long userId = (Long) auth.getPrincipal();
+        cardService.delete(id, userId);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/move")
-    public ResponseEntity<Card> move(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+    public ResponseEntity<Card> move(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        Long userId = (Long) auth.getPrincipal();
         Long toListId = Long.valueOf(body.get("toListId").toString());
         int newPosition = Integer.parseInt(body.get("position").toString());
-        return ResponseEntity.ok(cardService.move(id, toListId, newPosition));
+        return ResponseEntity.ok(cardService.move(id, toListId, newPosition, userId));
     }
 }

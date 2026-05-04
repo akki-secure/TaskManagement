@@ -3,6 +3,7 @@ package com.taskmanagement.controller;
 import com.taskmanagement.model.TaskList;
 import com.taskmanagement.service.ListService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,27 +20,31 @@ public class ListController {
     }
 
     @PostMapping
-    public ResponseEntity<TaskList> create(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<TaskList> create(@RequestBody Map<String, Object> body, Authentication auth) {
+        Long userId = (Long) auth.getPrincipal();
         Long boardId = Long.valueOf(body.get("boardId").toString());
         String title = (String) body.getOrDefault("title", "新しいリスト");
-        return ResponseEntity.ok(listService.create(boardId, title));
+        return ResponseEntity.ok(listService.create(boardId, title, userId));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TaskList> update(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+    public ResponseEntity<TaskList> update(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        Long userId = (Long) auth.getPrincipal();
         String title = (String) body.get("title");
-        return ResponseEntity.ok(listService.updateTitle(id, title));
+        return ResponseEntity.ok(listService.updateTitle(id, title, userId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        listService.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id, Authentication auth) {
+        Long userId = (Long) auth.getPrincipal();
+        listService.delete(id, userId);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/reorder")
-    public ResponseEntity<Void> reorder(@RequestBody List<Map<String, Object>> items) {
-        listService.reorder(items);
+    public ResponseEntity<Void> reorder(@RequestBody List<Map<String, Object>> items, Authentication auth) {
+        Long userId = (Long) auth.getPrincipal();
+        listService.reorder(items, userId);
         return ResponseEntity.noContent().build();
     }
 }
