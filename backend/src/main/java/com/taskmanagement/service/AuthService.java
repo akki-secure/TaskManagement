@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.Normalizer;
 import java.util.Optional;
 
 @Service
@@ -38,16 +39,18 @@ public class AuthService {
             throw new RuntimeException("メールアドレスを入力してください");
         if (req.getPassword() == null || req.getPassword().length() < 8)
             throw new RuntimeException("パスワードは8文字以上で入力してください");
-        if (!req.getUsername().matches("[a-zA-Z0-9_\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FFF\\u3400-\\u4DBF]{3,50}"))
-            throw new RuntimeException("ユーザー名は3〜50文字で入力してください（英数字・アンダースコア・日本語が使えます）");
 
-        if (userRepo.existsByUsername(req.getUsername()))
+        String username = Normalizer.normalize(req.getUsername().trim(), Normalizer.Form.NFC);
+        if (!username.matches("[a-zA-Z0-9_\\u3005\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FFF\\u3400-\\u4DBF]{2,50}"))
+            throw new RuntimeException("ユーザー名は2〜50文字で入力してください（英数字・アンダースコア・日本語が使えます）");
+
+        if (userRepo.existsByUsername(username))
             throw new RuntimeException("このユーザー名はすでに使用されています");
         if (userRepo.existsByEmail(req.getEmail()))
             throw new RuntimeException("このメールアドレスはすでに登録されています");
 
         User user = new User();
-        user.setUsername(req.getUsername());
+        user.setUsername(username);
         user.setEmail(req.getEmail());
         user.setPasswordHash(encoder.encode(req.getPassword()));
         userRepo.save(user);
@@ -65,9 +68,10 @@ public class AuthService {
         if (req.getIdentifier() == null || req.getIdentifier().isBlank())
             throw new RuntimeException("ユーザー名またはメールアドレスを入力してください");
 
-        Optional<User> userOpt = req.getIdentifier().contains("@")
-                ? userRepo.findByEmail(req.getIdentifier())
-                : userRepo.findByUsername(req.getIdentifier());
+        String identifier = Normalizer.normalize(req.getIdentifier().trim(), Normalizer.Form.NFC);
+        Optional<User> userOpt = identifier.contains("@")
+                ? userRepo.findByEmail(identifier)
+                : userRepo.findByUsername(identifier);
 
         User user = userOpt.orElseThrow(() -> new RuntimeException("ユーザー名またはパスワードが正しくありません"));
 
