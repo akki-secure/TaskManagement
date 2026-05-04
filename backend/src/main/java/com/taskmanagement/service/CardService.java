@@ -37,8 +37,8 @@ public class CardService {
         return cardRepository.findByListIdOrderByPosition(listId);
     }
 
-    public Card create(Long listId) {
-        TaskList list = listRepository.findById(listId)
+    public Card create(Long listId, Long userId) {
+        TaskList list = listRepository.findByIdAndBoard_User_Id(listId, userId)
                 .orElseThrow(() -> new RuntimeException("List not found: " + listId));
         int position = cardRepository.findByListIdOrderByPosition(listId).size();
         Card card = new Card();
@@ -48,8 +48,8 @@ public class CardService {
         return cardRepository.save(card);
     }
 
-    public Card update(Long id, Map<String, Object> body) {
-        Card card = cardRepository.findById(id)
+    public Card update(Long id, Map<String, Object> body, Long userId) {
+        Card card = cardRepository.findByIdAndList_Board_User_Id(id, userId)
                 .orElseThrow(() -> new RuntimeException("Card not found: " + id));
 
         if (body.containsKey("title")) {
@@ -74,19 +74,20 @@ public class CardService {
         return cardRepository.save(card);
     }
 
-    public void delete(Long id) {
-        cardRepository.deleteById(id);
+    public void delete(Long id, Long userId) {
+        Card card = cardRepository.findByIdAndList_Board_User_Id(id, userId)
+                .orElseThrow(() -> new RuntimeException("Card not found: " + id));
+        cardRepository.delete(card);
     }
 
-    public Card move(Long cardId, Long toListId, int newPosition) {
-        Card card = cardRepository.findById(cardId)
+    public Card move(Long cardId, Long toListId, int newPosition, Long userId) {
+        Card card = cardRepository.findByIdAndList_Board_User_Id(cardId, userId)
                 .orElseThrow(() -> new RuntimeException("Card not found: " + cardId));
-        TaskList toList = listRepository.findById(toListId)
+        TaskList toList = listRepository.findByIdAndBoard_User_Id(toListId, userId)
                 .orElseThrow(() -> new RuntimeException("List not found: " + toListId));
 
         Long fromListId = card.getList().getId();
 
-        // Remove from source list and reindex
         if (!fromListId.equals(toListId)) {
             List<Card> fromCards = cardRepository.findByListIdOrderByPosition(fromListId);
             fromCards.remove(card);
@@ -96,9 +97,8 @@ public class CardService {
             }
         }
 
-        // Insert into destination list
         List<Card> toCards = cardRepository.findByListIdOrderByPosition(toListId);
-        toCards.remove(card); // in case same list
+        toCards.remove(card);
         toCards.add(Math.min(newPosition, toCards.size()), card);
         for (int i = 0; i < toCards.size(); i++) {
             toCards.get(i).setPosition(i);
