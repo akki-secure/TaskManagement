@@ -20,13 +20,15 @@ public class CardController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Card> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(cardService.findById(id));
+    public ResponseEntity<Card> getById(@PathVariable Long id, Authentication auth) {
+        Long userId = (Long) auth.getPrincipal();
+        return ResponseEntity.ok(cardService.findByIdAndUserId(id, userId));
     }
 
     @GetMapping
-    public ResponseEntity<List<Card>> getByListId(@RequestParam Long listId) {
-        return ResponseEntity.ok(cardService.findByListId(listId));
+    public ResponseEntity<List<Card>> getByListId(@RequestParam Long listId, Authentication auth) {
+        Long userId = (Long) auth.getPrincipal();
+        return ResponseEntity.ok(cardService.findByListId(listId, userId));
     }
 
     @PostMapping
