@@ -24,16 +24,15 @@ public class CardService {
     }
 
     @Transactional(readOnly = true)
-    public Card findById(Long id) {
-        return cardRepository.findById(id)
+    public Card findByIdAndUserId(Long id, Long userId) {
+        return cardRepository.findByIdAndList_Board_User_Id(id, userId)
                 .orElseThrow(() -> new RuntimeException("Card not found: " + id));
     }
 
     @Transactional(readOnly = true)
-    public List<Card> findByListId(Long listId) {
-        if (!listRepository.existsById(listId)) {
-            throw new RuntimeException("List not found: " + listId);
-        }
+    public List<Card> findByListId(Long listId, Long userId) {
+        listRepository.findByIdAndBoard_User_Id(listId, userId)
+                .orElseThrow(() -> new RuntimeException("List not found: " + listId));
         return cardRepository.findByListIdOrderByPosition(listId);
     }
 

@@ -23,6 +23,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class CardServiceTest {
 
+    static final Long USER_ID = 99L;
+
     @Mock
     CardRepository cardRepository;
 
@@ -57,10 +59,10 @@ class CardServiceTest {
     void update_setDueDate_storesLocalDate() {
         TaskList list = makeList(1L);
         Card card = makeCard(1L, 0, list);
-        when(cardRepository.findById(1L)).thenReturn(Optional.of(card));
+        when(cardRepository.findByIdAndList_Board_User_Id(1L, USER_ID)).thenReturn(Optional.of(card));
         when(cardRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        Card result = cardService.update(1L, Map.of("dueDate", "2025-12-31"));
+        Card result = cardService.update(1L, Map.of("dueDate", "2025-12-31"), USER_ID);
 
         assertThat(result.getDueDate()).isEqualTo(LocalDate.of(2025, 12, 31));
     }
@@ -70,10 +72,10 @@ class CardServiceTest {
         TaskList list = makeList(1L);
         Card card = makeCard(1L, 0, list);
         card.setDueDate(LocalDate.of(2025, 1, 1));
-        when(cardRepository.findById(1L)).thenReturn(Optional.of(card));
+        when(cardRepository.findByIdAndList_Board_User_Id(1L, USER_ID)).thenReturn(Optional.of(card));
         when(cardRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        Card result = cardService.update(1L, Map.of("dueDate", ""));
+        Card result = cardService.update(1L, Map.of("dueDate", ""), USER_ID);
 
         assertThat(result.getDueDate()).isNull();
     }
@@ -82,10 +84,10 @@ class CardServiceTest {
     void update_setPriority_storesPriority() {
         TaskList list = makeList(1L);
         Card card = makeCard(1L, 0, list);
-        when(cardRepository.findById(1L)).thenReturn(Optional.of(card));
+        when(cardRepository.findByIdAndList_Board_User_Id(1L, USER_ID)).thenReturn(Optional.of(card));
         when(cardRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        Card result = cardService.update(1L, Map.of("priority", "high"));
+        Card result = cardService.update(1L, Map.of("priority", "high"), USER_ID);
 
         assertThat(result.getPriority()).isEqualTo("high");
     }
@@ -95,10 +97,10 @@ class CardServiceTest {
         TaskList list = makeList(1L);
         Card card = makeCard(1L, 0, list);
         card.setPriority("high");
-        when(cardRepository.findById(1L)).thenReturn(Optional.of(card));
+        when(cardRepository.findByIdAndList_Board_User_Id(1L, USER_ID)).thenReturn(Optional.of(card));
         when(cardRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        Card result = cardService.update(1L, Map.of("priority", ""));
+        Card result = cardService.update(1L, Map.of("priority", ""), USER_ID);
 
         assertThat(result.getPriority()).isNull();
     }
@@ -107,10 +109,10 @@ class CardServiceTest {
     void update_blankTitle_fallsBackToDefault() {
         TaskList list = makeList(1L);
         Card card = makeCard(1L, 0, list);
-        when(cardRepository.findById(1L)).thenReturn(Optional.of(card));
+        when(cardRepository.findByIdAndList_Board_User_Id(1L, USER_ID)).thenReturn(Optional.of(card));
         when(cardRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        Card result = cardService.update(1L, Map.of("title", "   "));
+        Card result = cardService.update(1L, Map.of("title", "   "), USER_ID);
 
         assertThat(result.getTitle()).isEqualTo("無題のカード");
     }
@@ -125,13 +127,13 @@ class CardServiceTest {
         Card b = makeCard(2L, 1, list);
         Card c = makeCard(3L, 2, list);
 
-        when(cardRepository.findById(1L)).thenReturn(Optional.of(a));
-        when(listRepository.findById(10L)).thenReturn(Optional.of(list));
+        when(cardRepository.findByIdAndList_Board_User_Id(1L, USER_ID)).thenReturn(Optional.of(a));
+        when(listRepository.findByIdAndBoard_User_Id(10L, USER_ID)).thenReturn(Optional.of(list));
         when(cardRepository.findByListIdOrderByPosition(10L))
                 .thenReturn(new ArrayList<>(List.of(a, b, c)));
         when(cardRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        cardService.move(1L, 10L, 2);
+        cardService.move(1L, 10L, 2, USER_ID);
 
         assertThat(b.getPosition()).isEqualTo(0);
         assertThat(c.getPosition()).isEqualTo(1);
@@ -146,13 +148,13 @@ class CardServiceTest {
         Card b = makeCard(2L, 1, list);
         Card c = makeCard(3L, 2, list);
 
-        when(cardRepository.findById(3L)).thenReturn(Optional.of(c));
-        when(listRepository.findById(10L)).thenReturn(Optional.of(list));
+        when(cardRepository.findByIdAndList_Board_User_Id(3L, USER_ID)).thenReturn(Optional.of(c));
+        when(listRepository.findByIdAndBoard_User_Id(10L, USER_ID)).thenReturn(Optional.of(list));
         when(cardRepository.findByListIdOrderByPosition(10L))
                 .thenReturn(new ArrayList<>(List.of(a, b, c)));
         when(cardRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        cardService.move(3L, 10L, 0);
+        cardService.move(3L, 10L, 0, USER_ID);
 
         assertThat(c.getPosition()).isEqualTo(0);
         assertThat(a.getPosition()).isEqualTo(1);
@@ -171,15 +173,15 @@ class CardServiceTest {
         Card d = makeCard(4L, 0, toList);
         Card e = makeCard(5L, 1, toList);
 
-        when(cardRepository.findById(2L)).thenReturn(Optional.of(b));
-        when(listRepository.findById(20L)).thenReturn(Optional.of(toList));
+        when(cardRepository.findByIdAndList_Board_User_Id(2L, USER_ID)).thenReturn(Optional.of(b));
+        when(listRepository.findByIdAndBoard_User_Id(20L, USER_ID)).thenReturn(Optional.of(toList));
         when(cardRepository.findByListIdOrderByPosition(10L))
                 .thenReturn(new ArrayList<>(List.of(a, b, c)));
         when(cardRepository.findByListIdOrderByPosition(20L))
                 .thenReturn(new ArrayList<>(List.of(d, e)));
         when(cardRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        cardService.move(2L, 20L, 1);
+        cardService.move(2L, 20L, 1, USER_ID);
 
         assertThat(a.getPosition()).isEqualTo(0);
         assertThat(c.getPosition()).isEqualTo(1);
@@ -197,15 +199,15 @@ class CardServiceTest {
         Card d = makeCard(4L, 0, toList);
         Card e = makeCard(5L, 1, toList);
 
-        when(cardRepository.findById(2L)).thenReturn(Optional.of(b));
-        when(listRepository.findById(20L)).thenReturn(Optional.of(toList));
+        when(cardRepository.findByIdAndList_Board_User_Id(2L, USER_ID)).thenReturn(Optional.of(b));
+        when(listRepository.findByIdAndBoard_User_Id(20L, USER_ID)).thenReturn(Optional.of(toList));
         when(cardRepository.findByListIdOrderByPosition(10L))
                 .thenReturn(new ArrayList<>(List.of(a, b, c)));
         when(cardRepository.findByListIdOrderByPosition(20L))
                 .thenReturn(new ArrayList<>(List.of(d, e)));
         when(cardRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        cardService.move(2L, 20L, 1);
+        cardService.move(2L, 20L, 1, USER_ID);
 
         assertThat(d.getPosition()).isEqualTo(0);
         assertThat(b.getPosition()).isEqualTo(1);
