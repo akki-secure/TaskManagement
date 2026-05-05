@@ -7,14 +7,17 @@ export default function List({ list, onAddCard, onDeleteList, onRenameList, onEd
   const [titleVal, setTitleVal] = useState(list.title)
   const inputRef = useRef(null)
 
-  useEffect(() => { setTitleVal(list.title) }, [list.title])
-
   useEffect(() => {
     if (editing && inputRef.current) {
       inputRef.current.focus()
       inputRef.current.select()
     }
   }, [editing])
+
+  function startEditing() {
+    setTitleVal(list.title)
+    setEditing(true)
+  }
 
   function commitRename() {
     const val = titleVal.trim()
@@ -38,7 +41,7 @@ export default function List({ list, onAddCard, onDeleteList, onRenameList, onEd
             }}
           />
         ) : (
-          <span className="list-title" title="クリックして編集" onClick={() => setEditing(true)}>
+          <span className="list-title" title="クリックして編集" onClick={startEditing}>
             {list.title}
           </span>
         )}
