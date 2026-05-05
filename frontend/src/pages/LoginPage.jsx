@@ -14,6 +14,14 @@ export default function LoginPage() {
     async function handleSubmit(e) {
         e.preventDefault()
         setError('')
+        if (!identifier.trim()) {
+            setError('ユーザー名またはメールアドレスを入力してください')
+            return
+        }
+        if (!password) {
+            setError('パスワードを入力してください')
+            return
+        }
         setLoading(true)
         try {
             const data = await loginApi({ identifier, password })

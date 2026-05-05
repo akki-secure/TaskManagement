@@ -17,6 +17,14 @@ export default function RegisterPage() {
     async function handleSubmit(e) {
         e.preventDefault()
         setError('')
+        if (!username.trim()) {
+            setError('ユーザー名を入力してください')
+            return
+        }
+        if (!password) {
+            setError('パスワードを入力してください')
+            return
+        }
         if (password !== confirmPassword) {
             setError('パスワードが一致しません')
             return
@@ -41,7 +49,7 @@ export default function RegisterPage() {
                 <input
                     className="auth-input"
                     type="text"
-                    placeholder="ユーザー名（2〜50文字・日本語も使用可）"
+                    placeholder="ユーザー名（2〜50文字・スペース・日本語も使用可）"
                     value={username}
                     onChange={e => setUsername(e.target.value)}
                     required
@@ -60,7 +68,7 @@ export default function RegisterPage() {
                     <input
                         className="auth-input"
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="パスワード（8文字以上・日本語も使用可）"
+                        placeholder="パスワード（8文字以上・英数字・記号）"
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                         required
