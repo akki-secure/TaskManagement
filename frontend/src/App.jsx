@@ -135,6 +135,7 @@ export default function App() {
 
             {editingCard && (
                 <CardModal
+                    key={editingCard.id}
                     card={editingCard}
                     onSave={handleSaveCard}
                     onClose={() => setEditingCard(null)}

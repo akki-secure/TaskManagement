@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 const STATUS_OPTIONS = [
   { value: 'todo', label: '未完了' },
@@ -13,21 +13,11 @@ function formatDateTime(dt) {
 }
 
 export default function CardModal({ card, onSave, onClose, onDelete }) {
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [dueDate, setDueDate] = useState('')
-  const [priority, setPriority] = useState('')
-  const [status, setStatus] = useState('todo')
-
-  useEffect(() => {
-    if (card) {
-      setTitle(card.title === '無題のカード' ? '' : card.title)
-      setDescription(card.description || '')
-      setDueDate(card.dueDate || '')
-      setPriority(card.priority || '')
-      setStatus(card.status || 'todo')
-    }
-  }, [card])
+  const [title, setTitle] = useState(card?.title === '無題のカード' ? '' : card?.title || '')
+  const [description, setDescription] = useState(card?.description || '')
+  const [dueDate, setDueDate] = useState(card?.dueDate || '')
+  const [priority, setPriority] = useState(card?.priority || '')
+  const [status, setStatus] = useState(card?.status || 'todo')
 
   if (!card) return null
 
