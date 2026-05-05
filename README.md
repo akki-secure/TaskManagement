@@ -101,10 +101,10 @@ docker exec -it taskmanagement-db psql -U postgres -d taskmanagement
 SELECT id, username, email FROM users;
 
 -- ボード一覧
-SELECT id, name, owner_id FROM boards;
+SELECT id, title, user_id FROM boards;
 
 -- リスト一覧
-SELECT id, name, board_id, position FROM lists ORDER BY board_id, position;
+SELECT id, title, board_id, position FROM lists ORDER BY board_id, position;
 
 -- カード一覧
 SELECT id, title, list_id, due_date, priority FROM cards ORDER BY list_id;
