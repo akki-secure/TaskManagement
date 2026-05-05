@@ -81,6 +81,52 @@ http://localhost:5173
 
 > バックエンドの接続設定は `backend/src/main/resources/application.properties` で変更できます。
 
+## データベースの中身を直接確認する
+
+コンテナが起動中であれば、以下の方法で PostgreSQL に接続してデータを確認できます。
+
+### psql でコンテナに入る
+
+```bash
+docker exec -it taskmanagement-db psql -U postgres -d taskmanagement
+```
+
+接続後は通常の SQL が使えます。
+
+```sql
+-- テーブル一覧
+\dt
+
+-- ユーザー一覧
+SELECT id, username, email FROM users;
+
+-- ボード一覧
+SELECT id, name, owner_id FROM boards;
+
+-- リスト一覧
+SELECT id, name, board_id, position FROM lists ORDER BY board_id, position;
+
+-- カード一覧
+SELECT id, title, list_id, due_date, priority FROM cards ORDER BY list_id;
+
+-- psql を終了
+\q
+```
+
+### 接続情報
+
+| 項目 | 値 |
+|---|---|
+| ホスト | localhost |
+| ポート | 5432 |
+| データベース名 | taskmanagement |
+| ユーザー | postgres |
+| パスワード | postgres |
+
+TablePlus・DBeaver などの GUI ツールでも上記の情報で接続できます。
+
+---
+
 ## 終了方法
 
 各ターミナルで `Ctrl + C`（Mac は `Command + C`）を押す。  
