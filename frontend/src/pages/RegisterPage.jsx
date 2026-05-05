@@ -21,8 +21,8 @@ export default function RegisterPage() {
             setError('ユーザー名を入力してください')
             return
         }
-        if (!password) {
-            setError('パスワードを入力してください')
+        if (!/^[a-zA-Z0-9]{8,}$/.test(password)) {
+            setError('パスワードは英数字のみ8文字以上で入力してください')
             return
         }
         if (password !== confirmPassword) {
@@ -46,55 +46,63 @@ export default function RegisterPage() {
             <form className="auth-form" onSubmit={handleSubmit}>
                 <h1 className="auth-title">新規登録</h1>
                 {error && <p className="auth-error">{error}</p>}
-                <input
-                    className="auth-input"
-                    type="text"
-                    placeholder="ユーザー名（2〜50文字・スペース・日本語も使用可）"
-                    value={username}
-                    onChange={e => setUsername(e.target.value)}
-                    required
-                    autoComplete="username"
-                />
-                <input
-                    className="auth-input"
-                    type="email"
-                    placeholder="メールアドレス"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    required
-                    autoComplete="email"
-                />
-                <div className="auth-password-wrap">
+                <div className="auth-field">
+                    <label className="auth-label">ユーザー名<span className="required-mark">※</span></label>
                     <input
                         className="auth-input"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="パスワード（8文字以上・英数字・記号）"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
+                        type="text"
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
                         required
-                        minLength={8}
-                        autoComplete="new-password"
+                        autoComplete="username"
                     />
-                    <button
-                        type="button"
-                        className="auth-pw-toggle"
-                        onClick={() => setShowPassword(v => !v)}
-                        tabIndex={-1}
-                    >
-                        {showPassword ? '非表示' : '表示'}
-                    </button>
                 </div>
-                <div className="auth-password-wrap">
+                <div className="auth-field">
+                    <label className="auth-label">メールアドレス<span className="required-mark">※</span></label>
                     <input
                         className="auth-input"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="パスワード（確認用）"
-                        value={confirmPassword}
-                        onChange={e => setConfirmPassword(e.target.value)}
+                        type="email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
                         required
-                        minLength={8}
-                        autoComplete="new-password"
+                        autoComplete="email"
                     />
+                </div>
+                <div className="auth-field">
+                    <label className="auth-label">パスワード（英数字8文字以上）<span className="required-mark">※</span></label>
+                    <div className="auth-password-wrap">
+                        <input
+                            className="auth-input"
+                            type={showPassword ? 'text' : 'password'}
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            required
+                            minLength={8}
+                            autoComplete="new-password"
+                        />
+                        <button
+                            type="button"
+                            className="auth-pw-toggle"
+                            onClick={() => setShowPassword(v => !v)}
+                            tabIndex={-1}
+                        >
+                            {showPassword ? '非表示' : '表示'}
+                        </button>
+                    </div>
+                </div>
+                <div className="auth-field">
+                    <label className="auth-label">パスワード（確認）<span className="required-mark">※</span></label>
+                    <div className="auth-password-wrap">
+                        <input
+                            className="auth-input"
+                            type={showPassword ? 'text' : 'password'}
+                            value={confirmPassword}
+                            onChange={e => setConfirmPassword(e.target.value)}
+                            required
+                            minLength={8}
+                            autoComplete="new-password"
+                        />
+                    </div>
                 </div>
                 <button className="auth-btn-primary" type="submit" disabled={loading}>
                     {loading ? '登録中...' : '登録する'}

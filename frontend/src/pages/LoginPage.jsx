@@ -39,24 +39,29 @@ export default function LoginPage() {
             <form className="auth-form" onSubmit={handleSubmit}>
                 <h1 className="auth-title">ログイン</h1>
                 {error && <p className="auth-error">{error}</p>}
-                <input
-                    className="auth-input"
-                    type="text"
-                    placeholder="ユーザー名またはメールアドレス"
-                    value={identifier}
-                    onChange={e => setIdentifier(e.target.value)}
-                    required
-                    autoComplete="username"
-                />
-                <input
-                    className="auth-input"
-                    type="password"
-                    placeholder="パスワード"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    required
-                    autoComplete="current-password"
-                />
+                <div className="auth-field">
+                    <label className="auth-label">ユーザー名またはメールアドレス<span className="required-mark">※</span></label>
+                    <input
+                        className="auth-input"
+                        type="text"
+                        value={identifier}
+                        onChange={e => setIdentifier(e.target.value)}
+                        required
+                        autoComplete="username"
+                    />
+                </div>
+                <div className="auth-field">
+                    <label className="auth-label">パスワード<span className="required-mark">※</span></label>
+                    <input
+                        className="auth-input"
+                        type="password"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        required
+                        autoComplete="current-password"
+                    />
+                    <p className="auth-hint">英数字8文字以上</p>
+                </div>
                 <button className="auth-btn-primary" type="submit" disabled={loading}>
                     {loading ? 'ログイン中...' : 'ログイン'}
                 </button>
