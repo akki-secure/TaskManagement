@@ -21,7 +21,7 @@ export default function AccountSettingsModal({ onClose }) {
     async function handleProfileSave(e) {
         e.preventDefault()
         setProfileMsg(null)
-        if (!username.trim().match(/^[a-zA-Z0-9_ 　々぀-ゟ゠-ヿ一-鿿㐀-䶿]{2,50}$/u)) {
+        if (!username.trim().match(/^[a-zA-Z0-9_ \u3000々぀-ゟ゠-ヿ一-鿿㐀-䶿]{2,50}$/u)) {
             setProfileMsg({ type: 'error', text: 'ユーザー名は2〜50文字で入力してください（英数字・アンダースコア・スペース・日本語が使えます）' })
             return
         }
