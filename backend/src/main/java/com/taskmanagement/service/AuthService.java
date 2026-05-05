@@ -40,9 +40,11 @@ public class AuthService {
         if (req.getPassword() == null || req.getPassword().length() < 8)
             throw new RuntimeException("パスワードは8文字以上で入力してください");
 
-        String username = Normalizer.normalize(req.getUsername().trim(), Normalizer.Form.NFC);
-        if (!username.matches("[a-zA-Z0-9_\\u3005\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FFF\\u3400-\\u4DBF]{2,50}"))
-            throw new RuntimeException("ユーザー名は2〜50文字で入力してください（英数字・アンダースコア・日本語が使えます）");
+        String username = Normalizer.normalize(req.getUsername().strip(), Normalizer.Form.NFC);
+        if (username.isBlank())
+            throw new RuntimeException("ユーザー名を入力してください");
+        if (!username.matches("[a-zA-Z0-9_ \\u3000\\u3005\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FFF\\u3400-\\u4DBF]{2,50}"))
+            throw new RuntimeException("ユーザー名は2〜50文字で入力してください（英数字・スペース・日本語が使えます）");
 
         if (userRepo.existsByUsername(username))
             throw new RuntimeException("このユーザー名はすでに使用されています");
