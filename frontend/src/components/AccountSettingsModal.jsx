@@ -21,8 +21,8 @@ export default function AccountSettingsModal({ onClose }) {
     async function handleProfileSave(e) {
         e.preventDefault()
         setProfileMsg(null)
-        if (!username.match(/^[a-zA-Z0-9_々぀-ゟ゠-ヿ一-鿿㐀-䶿]{2,50}$/u)) {
-            setProfileMsg({ type: 'error', text: 'ユーザー名は2〜50文字で入力してください（英数字・アンダースコア・日本語が使えます）' })
+        if (!username.trim().match(/^[a-zA-Z0-9_ \u3000々぀-ゟ゠-ヿ一-鿿㐀-䶿]{2,50}$/u)) {
+            setProfileMsg({ type: 'error', text: 'ユーザー名は2〜50文字で入力してください（英数字・アンダースコア・スペース・日本語が使えます）' })
             return
         }
         setProfileLoading(true)
@@ -40,6 +40,10 @@ export default function AccountSettingsModal({ onClose }) {
     async function handlePasswordSave(e) {
         e.preventDefault()
         setPasswordMsg(null)
+        if (!/^[a-zA-Z0-9]{8,}$/.test(newPassword)) {
+            setPasswordMsg({ type: 'error', text: 'パスワードは英数字のみ8文字以上で入力してください' })
+            return
+        }
         if (newPassword !== confirmPassword) {
             setPasswordMsg({ type: 'error', text: '新しいパスワードが一致しません' })
             return
@@ -88,7 +92,7 @@ export default function AccountSettingsModal({ onClose }) {
                                 {profileMsg.text}
                             </p>
                         )}
-                        <label className="settings-label">ユーザー名 <span className="settings-hint">（2〜50文字・日本語も使用可）</span></label>
+                        <label className="settings-label">ユーザー名<span className="required-mark">※</span> <span className="settings-hint">（2〜50文字・スペース・日本語も使用可）</span></label>
                         <input
                             className="auth-input"
                             type="text"
@@ -99,7 +103,7 @@ export default function AccountSettingsModal({ onClose }) {
                             maxLength={50}
                             autoComplete="username"
                         />
-                        <label className="settings-label">メールアドレス</label>
+                        <label className="settings-label">メールアドレス<span className="required-mark">※</span></label>
                         <input
                             className="auth-input"
                             type="email"
@@ -131,7 +135,7 @@ export default function AccountSettingsModal({ onClose }) {
                                 {showPassword ? '非表示' : '表示'}
                             </button>
                         </div>
-                        <label className="settings-label">現在のパスワード</label>
+                        <label className="settings-label">現在のパスワード<span className="required-mark">※</span></label>
                         <input
                             className="auth-input"
                             type={showPassword ? 'text' : 'password'}
@@ -140,7 +144,7 @@ export default function AccountSettingsModal({ onClose }) {
                             required
                             autoComplete="current-password"
                         />
-                        <label className="settings-label">新しいパスワード（8文字以上・日本語も使用可）</label>
+                        <label className="settings-label">新しいパスワード（英数字8文字以上）<span className="required-mark">※</span></label>
                         <input
                             className="auth-input"
                             type={showPassword ? 'text' : 'password'}
@@ -149,7 +153,7 @@ export default function AccountSettingsModal({ onClose }) {
                             required
                             autoComplete="new-password"
                         />
-                        <label className="settings-label">新しいパスワード（確認）</label>
+                        <label className="settings-label">新しいパスワード（確認）<span className="required-mark">※</span></label>
                         <input
                             className="auth-input"
                             type={showPassword ? 'text' : 'password'}
