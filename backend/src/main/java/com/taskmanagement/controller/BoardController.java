@@ -4,6 +4,7 @@ import com.taskmanagement.model.Board;
 import com.taskmanagement.model.User;
 import com.taskmanagement.repository.BoardRepository;
 import com.taskmanagement.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +44,7 @@ public class BoardController {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         board.setUser(user);
-        return ResponseEntity.ok(boardRepository.save(board));
+        return ResponseEntity.status(HttpStatus.CREATED).body(boardRepository.save(board));
     }
 
     @DeleteMapping("/{id}")
