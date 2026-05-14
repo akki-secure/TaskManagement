@@ -1,0 +1,21 @@
+# Terraform
+infra/terraform/.terraform/
+infra/terraform/terraform.tfstate
+infra/terraform/terraform.tfstate.backup
+infra/terraform/tfplan
+infra/terraform/terraform.tfvars
+infra/terraform/.terraform.lock.hcl
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env.production
+frontend/.env.local
+
+# Backend
+backend/build/
+backend/.gradle/
+backend/out/
+
+# System
+.DS_Store
