@@ -1,0 +1,13 @@
+# このファイルをコピーして terraform.tfvars を作成する
+# cp terraform.tfvars.example terraform.tfvars
+#
+# terraform.tfvars は .gitignore に追加すること（パスワードが含まれるため）
+
+aws_region   = "ap-northeast-1"
+project_name = "taskmanagement"
+environment  = "production"
+
+# 必ずランダムで強力なパスワードに変更すること
+db_password = "CHANGE_ME_STRONG_PASSWORD_HERE"
+db_username = "postgres"
+db_name     = "taskmanagement"
