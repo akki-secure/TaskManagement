@@ -11,3 +11,8 @@ environment  = "production"
 db_password = "CHANGE_ME_STRONG_PASSWORD_HERE"
 db_username = "postgres"
 db_name     = "taskmanagement"
+
+# EC2へのSSH接続に使うキーペア名
+# AWSコンソール → EC2 → キーペア で事前に作成し、その名前を入力する
+# SSH接続不要ならSSM Session Manager（AWSコンソールから接続可）が使えるので "" のままでOK
+key_pair_name = ""

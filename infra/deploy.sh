@@ -1,5 +1,5 @@
 #!/bin/bash
-# TaskManagement AWSデプロイスクリプト
+# TaskManagement AWSデプロイスクリプト（無料枠構成: EC2 + RDS + S3 + CloudFront）
 # 使い方: ./infra/deploy.sh
 set -e
 
@@ -15,7 +15,7 @@ echo "========================================="
 
 # ===== 前提チェック =====
 echo ""
-echo "[1/6] 前提ツールの確認..."
+echo "[1/5] 前提ツールの確認..."
 command -v aws >/dev/null 2>&1 || { echo "ERROR: aws CLI がインストールされていません"; exit 1; }
 command -v terraform >/dev/null 2>&1 || { echo "ERROR: terraform がインストールされていません"; exit 1; }
 command -v docker >/dev/null 2>&1 || { echo "ERROR: docker がインストールされていません"; exit 1; }
@@ -26,7 +26,7 @@ echo "  リージョン: $AWS_REGION"
 
 # ===== Terraform インフラ作成 =====
 echo ""
-echo "[2/6] Terraform でインフラを構築..."
+echo "[2/5] Terraform でインフラを構築..."
 cd "$SCRIPT_DIR/terraform"
 
 if [ ! -f "terraform.tfvars" ]; then
@@ -52,12 +52,13 @@ terraform apply tfplan
 ECR_URL=$(terraform output -raw ecr_repository_url)
 S3_BUCKET=$(terraform output -raw s3_bucket_name)
 CLOUDFRONT_ID=$(terraform output -raw cloudfront_distribution_id)
+BACKEND_IP=$(terraform output -raw backend_public_ip)
 BACKEND_URL=$(terraform output -raw backend_url)
 FRONTEND_URL=$(terraform output -raw frontend_url)
 
 # ===== バックエンド Dockerイメージのビルド & プッシュ =====
 echo ""
-echo "[3/6] バックエンド Dockerイメージをビルド..."
+echo "[3/5] バックエンド Dockerイメージをビルド..."
 cd "$ROOT_DIR/backend"
 
 # ECRにログイン
@@ -72,22 +73,28 @@ docker tag "$PROJECT_NAME-backend:latest" "$ECR_URL:latest"
 docker push "$ECR_URL:latest"
 echo "  完了: $ECR_URL:latest"
 
-# ===== ECSサービスを再起動（新イメージを反映）=====
+# ===== EC2でコンテナを再起動（新イメージを反映）=====
 echo ""
-echo "[4/6] ECSサービスを更新..."
-aws ecs update-service \
-  --cluster "${PROJECT_NAME}-cluster" \
-  --service "${PROJECT_NAME}-backend" \
-  --force-new-deployment \
-  --region "$AWS_REGION" \
-  --query 'service.serviceName' \
-  --output text
-
-echo "  ECSデプロイを開始しました（完了まで数分かかります）"
+echo "[4/5] EC2でバックエンドコンテナを更新..."
+echo "  EC2 IP: $BACKEND_IP"
+echo ""
+echo "  ※ EC2に直接ログインして以下のコマンドを実行してください:"
+echo ""
+echo "  ssh ec2-user@$BACKEND_IP"
+echo "  aws ecr get-login-password --region $AWS_REGION | \\"
+echo "    docker login --username AWS --password-stdin $ECR_URL"
+echo "  docker pull $ECR_URL:latest"
+echo "  docker stop backend && docker rm backend"
+echo "  docker run -d --name backend --restart always -p 8080:8080 \\"
+echo "    -e SPRING_PROFILES_ACTIVE=production \\"
+echo "    -e SPRING_DATASOURCE_URL=jdbc:postgresql://... \\"
+echo "    $ECR_URL:latest"
+echo ""
+echo "  ※ SSMを使う場合はAWSコンソール → EC2 → 接続 → Session Manager"
 
 # ===== フロントエンドをビルド & S3にアップロード =====
 echo ""
-echo "[5/6] フロントエンドをビルド & S3にアップロード..."
+echo "[5/5] フロントエンドをビルド & S3にアップロード..."
 cd "$ROOT_DIR/frontend"
 
 # 本番環境用の環境変数を設定
@@ -100,15 +107,13 @@ npm run build
 aws s3 sync dist/ "s3://$S3_BUCKET/" --delete
 echo "  S3にアップロード完了"
 
-# ===== CloudFrontキャッシュを削除 =====
-echo ""
-echo "[6/6] CloudFrontキャッシュをクリア..."
+# CloudFrontキャッシュを削除
 INVALIDATION_ID=$(aws cloudfront create-invalidation \
   --distribution-id "$CLOUDFRONT_ID" \
   --paths "/*" \
   --query 'Invalidation.Id' \
   --output text)
-echo "  キャッシュ削除リクエスト: $INVALIDATION_ID"
+echo "  CloudFrontキャッシュ削除リクエスト: $INVALIDATION_ID"
 
 # ===== 完了 =====
 echo ""
@@ -118,6 +123,6 @@ echo "========================================="
 echo ""
 echo "  フロントエンド: $FRONTEND_URL"
 echo "  バックエンドAPI: $BACKEND_URL"
+echo "  EC2 SSH: ssh ec2-user@$BACKEND_IP"
 echo ""
-echo "※ ECSの起動に数分かかる場合があります"
 echo "※ CloudFrontのキャッシュ削除に最大15分かかる場合があります"

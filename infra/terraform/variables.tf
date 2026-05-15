@@ -39,3 +39,9 @@ variable "backend_image_tag" {
   type        = string
   default     = "latest"
 }
+
+variable "key_pair_name" {
+  description = "EC2へのSSH接続に使うキーペア名（AWSコンソールで事前に作成しておく）"
+  type        = string
+  default     = ""
+}

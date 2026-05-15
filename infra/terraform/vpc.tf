@@ -20,7 +20,7 @@ resource "aws_internet_gateway" "main" {
 }
 
 # パブリックサブネット（インターネットから直接アクセス可能）
-# ALB（ロードバランサー）を置く場所。2つのAZに分散（冗長化）
+# EC2（バックエンド）をここに置く。RDSサブネットグループは2AZ必要なので2つ作る
 resource "aws_subnet" "public" {
   count             = 2
   vpc_id            = aws_vpc.main.id
@@ -35,7 +35,7 @@ resource "aws_subnet" "public" {
 }
 
 # プライベートサブネット（インターネットから直接アクセス不可）
-# RDS（DB）とECS（バックエンド）を置く場所
+# RDS（DB）をここに置く。EC2からのみアクセス可能にする
 resource "aws_subnet" "private" {
   count             = 2
   vpc_id            = aws_vpc.main.id
@@ -67,72 +67,36 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-# Elastic IP（NATゲートウェイ用）= 固定IPアドレス
-resource "aws_eip" "nat" {
-  domain = "vpc"
-  tags = {
-    Name = "${var.project_name}-nat-eip"
-  }
-}
-
-# NATゲートウェイ = プライベートサブネットからインターネットへの出口
-# （ECSがDockerイメージをプルするために必要）
-resource "aws_nat_gateway" "main" {
-  allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public[0].id
-
-  tags = {
-    Name = "${var.project_name}-nat"
-  }
-
-  depends_on = [aws_internet_gateway.main]
-}
-
-# ルートテーブル（プライベート）= NATゲートウェイ経由でインターネットへ
-resource "aws_route_table" "private" {
-  vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.main.id
-  }
-
-  tags = {
-    Name = "${var.project_name}-private-rt"
-  }
-}
-
-resource "aws_route_table_association" "private" {
-  count          = 2
-  subnet_id      = aws_subnet.private[count.index].id
-  route_table_id = aws_route_table.private.id
-}
-
 # 利用可能なAZを自動取得
 data "aws_availability_zones" "available" {
   state = "available"
 }
 
-# セキュリティグループ: ALB用（インターネット→ALBのHTTP/HTTPSを許可）
-resource "aws_security_group" "alb" {
-  name        = "${var.project_name}-alb-sg"
-  description = "ALB security group"
+# セキュリティグループ: EC2用（インターネット → EC2のHTTP 8080 と SSH 22 を許可）
+resource "aws_security_group" "ec2" {
+  name        = "${var.project_name}-ec2-sg"
+  description = "EC2 backend security group"
   vpc_id      = aws_vpc.main.id
 
+  # バックエンドAPI（Spring Boot）へのアクセス
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = 8080
+    to_port     = 8080
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # SSH接続（サーバーへのログイン・トラブルシューティング用）
+  # セキュリティ強化したい場合は cidr_blocks を自分のIPに絞る
+  # 例: cidr_blocks = ["YOUR_IP/32"]
   ingress {
-    from_port   = 443
-    to_port     = 443
+    from_port   = 22
+    to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # アウトバウンド（ECRからのイメージpullなど）は全て許可
   egress {
     from_port   = 0
     to_port     = 0
@@ -141,36 +105,11 @@ resource "aws_security_group" "alb" {
   }
 
   tags = {
-    Name = "${var.project_name}-alb-sg"
+    Name = "${var.project_name}-ec2-sg"
   }
 }
 
-# セキュリティグループ: ECS用（ALBからの8080ポートのみ許可）
-resource "aws_security_group" "ecs" {
-  name        = "${var.project_name}-ecs-sg"
-  description = "ECS task security group"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    from_port       = 8080
-    to_port         = 8080
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "${var.project_name}-ecs-sg"
-  }
-}
-
-# セキュリティグループ: RDS用（ECSからの5432ポートのみ許可）
+# セキュリティグループ: RDS用（EC2からの5432ポートのみ許可）
 resource "aws_security_group" "rds" {
   name        = "${var.project_name}-rds-sg"
   description = "RDS security group"
@@ -180,7 +119,7 @@ resource "aws_security_group" "rds" {
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"
-    security_groups = [aws_security_group.ecs.id]
+    security_groups = [aws_security_group.ec2.id]
   }
 
   tags = {

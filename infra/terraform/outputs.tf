@@ -5,8 +5,18 @@ output "frontend_url" {
 }
 
 output "backend_url" {
-  description = "バックエンドAPIのURL（ALB）"
-  value       = "http://${aws_lb.main.dns_name}"
+  description = "バックエンドAPIのURL（EC2のパブリックIP）"
+  value       = "http://${aws_instance.backend.public_ip}:8080"
+}
+
+output "backend_public_ip" {
+  description = "EC2のパブリックIPアドレス（SSH接続に使用）"
+  value       = aws_instance.backend.public_ip
+}
+
+output "ssh_command" {
+  description = "EC2へのSSH接続コマンド（key_pair_nameを設定した場合）"
+  value       = "ssh -i ~/.ssh/${var.key_pair_name}.pem ec2-user@${aws_instance.backend.public_ip}"
 }
 
 output "ecr_repository_url" {
