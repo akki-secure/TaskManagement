@@ -10,32 +10,8 @@ variable "project_name" {
   default     = "taskmanagement"
 }
 
-variable "environment" {
-  description = "環境名"
-  type        = string
-  default     = "production"
-}
-
-variable "db_password" {
-  description = "PostgreSQLのパスワード（terraform.tfvarsで設定。Gitにコミットしない）"
-  type        = string
-  sensitive   = true
-}
-
-variable "db_username" {
-  description = "PostgreSQLのユーザー名"
-  type        = string
-  default     = "postgres"
-}
-
-variable "db_name" {
-  description = "データベース名"
-  type        = string
-  default     = "taskmanagement"
-}
-
-variable "backend_image_tag" {
-  description = "バックエンドDockerイメージのタグ"
-  type        = string
-  default     = "latest"
-}
+# variable "key_pair_name" {
+#   description = "EC2へのSSH接続に使うキーペア名"
+#   description = "AWSコンソール → EC2 → キーペア で事前に作成しておく"
+#   type        = string
+# }
