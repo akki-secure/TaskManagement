@@ -1,31 +1,20 @@
-# デプロイ後に表示される重要な情報
+# terraform apply 後に表示される情報
+output "ec2_public_ip" {
+  description = "EC2のパブリックIPアドレス"
+  value       = aws_instance.main.public_ip
+}
+
 output "frontend_url" {
-  description = "フロントエンドのURL（CloudFront）"
-  value       = "https://${aws_cloudfront_distribution.frontend.domain_name}"
+  description = "フロントエンドのURL（nginx）"
+  value       = "http://${aws_instance.main.public_ip}"
 }
 
 output "backend_url" {
-  description = "バックエンドAPIのURL（ALB）"
-  value       = "http://${aws_lb.main.dns_name}"
+  description = "バックエンドAPIのURL（Spring Boot）"
+  value       = "http://${aws_instance.main.public_ip}:8080"
 }
 
-output "ecr_repository_url" {
-  description = "ECRリポジトリURL（Dockerイメージのプッシュ先）"
-  value       = aws_ecr_repository.backend.repository_url
-}
-
-output "rds_endpoint" {
-  description = "RDSエンドポイント（アプリからの接続先）"
-  value       = aws_db_instance.postgres.endpoint
-  sensitive   = true
-}
-
-output "s3_bucket_name" {
-  description = "フロントエンドのS3バケット名"
-  value       = aws_s3_bucket.frontend.bucket
-}
-
-output "cloudfront_distribution_id" {
-  description = "CloudFrontディストリビューションID（キャッシュ削除に使用）"
-  value       = aws_cloudfront_distribution.frontend.id
+output "ssh_command" {
+  description = "SSH接続コマンド（キーペアを設定した場合）"
+  value       = "ssh -i ~/.ssh/<キーペア名>.pem ec2-user@${aws_instance.main.public_ip}"
 }
