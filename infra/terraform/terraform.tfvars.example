@@ -4,5 +4,8 @@
 aws_region   = "ap-northeast-1"
 project_name = "taskmanagement"
 
-# SSH接続にキーペアを使う場合は以下のコメントを外す
-# key_pair_name = "my-keypair"
+# AWSコンソール → EC2 → キーペア で事前に作成したキーペア名
+key_pair_name = "my-keypair"
+
+# 自分のIPアドレス（curl https://checkip.amazonaws.com で確認）
+allowed_ip = "YOUR_IP/32"
