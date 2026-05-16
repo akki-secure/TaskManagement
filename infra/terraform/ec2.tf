@@ -24,12 +24,9 @@ resource "aws_instance" "main" {
   vpc_security_group_ids      = [aws_security_group.ec2.id]
   associate_public_ip_address = true
 
-  # key_name = var.key_pair_name
-  # ↑ キーペアでSSH接続する場合はコメントを外す
-  # AWSコンソール → EC2 → キーペア で事前に作成が必要
+  key_name = var.key_pair_name
 
   # user_data = インスタンス起動時に自動実行されるスクリプト
-  # Java 21 と nginx をインストールしておく
   user_data = <<-EOF
     #!/bin/bash
     dnf update -y
@@ -39,6 +36,28 @@ resource "aws_instance" "main" {
 
     # nginx（フロントエンドの静的ファイル配信用）
     dnf install -y nginx
+
+    # nginx 設定: /api → Spring Boot リバースプロキシ + React Router SPAフォールバック
+    cat > /etc/nginx/conf.d/app.conf << 'NGINXEOF'
+server {
+    listen 80;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass         http://localhost:8080;
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+NGINXEOF
+
     systemctl enable nginx
     systemctl start nginx
   EOF
