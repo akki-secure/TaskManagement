@@ -9,3 +9,8 @@ key_pair_name = "my-keypair"
 
 # 自分のIPアドレス（curl https://checkip.amazonaws.com で確認）
 allowed_ip = "YOUR_IP/32"
+
+# RDS 設定
+db_name     = "taskmanagement"
+db_username = "postgres"
+db_password = "YOUR_STRONG_PASSWORD"

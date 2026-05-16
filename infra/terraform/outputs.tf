@@ -18,3 +18,13 @@ output "ssh_command" {
   description = "SSH接続コマンド（キーペアを設定した場合）"
   value       = "ssh -i ~/.ssh/<キーペア名>.pem ec2-user@${aws_instance.main.public_ip}"
 }
+
+output "rds_endpoint" {
+  description = "RDSのエンドポイント（EC2内からのみ接続可能）"
+  value       = aws_db_instance.main.endpoint
+}
+
+output "rds_db_name" {
+  description = "RDSのデータベース名"
+  value       = aws_db_instance.main.db_name
+}

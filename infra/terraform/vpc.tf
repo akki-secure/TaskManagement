@@ -31,6 +31,28 @@ resource "aws_subnet" "public" {
   }
 }
 
+# プライベートサブネット × 2AZ = RDSサブネットグループの要件（最低2AZ必要）
+# インターネットから直接アクセスできないネットワーク（RDB用）
+resource "aws_subnet" "private_a" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "${var.aws_region}a"
+
+  tags = {
+    Name = "${var.project_name}-private-a"
+  }
+}
+
+resource "aws_subnet" "private_c" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.3.0/24"
+  availability_zone = "${var.aws_region}c"
+
+  tags = {
+    Name = "${var.project_name}-private-c"
+  }
+}
+
 # ルートテーブル = 「インターネット宛の通信はIGW経由」という経路設定
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
@@ -90,5 +112,30 @@ resource "aws_security_group" "ec2" {
 
   tags = {
     Name = "${var.project_name}-ec2-sg"
+  }
+}
+
+# RDS用セキュリティグループ = EC2からのみポート5432（PostgreSQL）を許可
+resource "aws_security_group" "rds" {
+  name        = "${var.project_name}-rds-sg"
+  description = "RDS security group - allow PostgreSQL from EC2 only"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.ec2.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.project_name}-rds-sg"
   }
 }
