@@ -25,16 +25,18 @@ cd "$FRONTEND_DIR"
 npm run build
 
 echo "=== ビルド済みファイルをEC2に転送 ==="
+# /usr/share/nginx/html/ は root 所有のため、一時ディレクトリ経由で sudo コピー
+ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no "ec2-user@$EC2_IP" "rm -rf /tmp/frontend-dist && mkdir -p /tmp/frontend-dist"
 scp -i "$KEY_PATH" \
     -o StrictHostKeyChecking=no \
     -r dist/* \
-    "ec2-user@$EC2_IP:/usr/share/nginx/html/"
+    "ec2-user@$EC2_IP:/tmp/frontend-dist/"
 
-echo "=== nginxを再読み込み ==="
+echo "=== nginx配信ディレクトリに配置 ==="
 ssh -i "$KEY_PATH" \
     -o StrictHostKeyChecking=no \
     "ec2-user@$EC2_IP" \
-    "sudo nginx -t && sudo systemctl reload nginx"
+    "sudo cp -r /tmp/frontend-dist/* /usr/share/nginx/html/ && sudo nginx -t && sudo systemctl reload nginx"
 
 echo ""
 echo "デプロイ完了: http://$EC2_IP"
