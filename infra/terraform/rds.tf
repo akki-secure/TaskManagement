@@ -28,8 +28,9 @@ resource "aws_db_instance" "main" {
   # インターネットから直接アクセス不可
   publicly_accessible = false
 
-  # 削除時にスナップショットを作らない（検証用途のため）
-  skip_final_snapshot = true
+  # 削除時に自動スナップショットを作成してデータを保護する
+  skip_final_snapshot       = false
+  final_snapshot_identifier = "${var.project_name}-db-final-snapshot"
 
   tags = {
     Name = "${var.project_name}-db"

@@ -14,3 +14,8 @@ allowed_ip = "YOUR_IP/32"
 db_name     = "taskmanagement"
 db_username = "postgres"
 db_password = "YOUR_STRONG_PASSWORD"
+
+# S3 バックエンド用バケット名
+# aws sts get-caller-identity --query Account --output text でアカウントIDを確認
+# 例: taskmanagement-tfstate-123456789012
+tfstate_bucket = "taskmanagement-tfstate-YOUR_AWS_ACCOUNT_ID"

@@ -37,3 +37,8 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
+variable "tfstate_bucket" {
+  description = "tfstate を保存する S3 バケット名（terraform.tfvars に設定すること）"
+  type        = string
+}
