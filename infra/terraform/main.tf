@@ -8,13 +8,12 @@ terraform {
     }
   }
 
-  # デプロイ状態をS3に保存（チーム開発やCI/CDに必要）
-  # 初回はコメントアウトして、後で有効化する
-  # backend "s3" {
-  #   bucket = "taskmanagement-tfstate-<あなたのAWSアカウントID>"
-  #   key    = "terraform.tfstate"
-  #   region = "ap-northeast-1"
-  # }
+  # デプロイ状態をS3に保存（ローカル消失・チーム開発・CI/CD対応）
+  backend "s3" {
+    bucket = "taskmanagement-tfstate-174516979085"
+    key    = "terraform.tfstate"
+    region = "ap-northeast-1"
+  }
 }
 
 provider "aws" {
