@@ -3,15 +3,18 @@ services:
     image: postgres:16-alpine
     container_name: taskmanagement-db
     environment:
-      POSTGRES_DB: taskmanagement
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${DB_NAME:?DB_NAME を .env に設定してください}
+      POSTGRES_USER: ${POSTGRES_ADMIN_USER:?POSTGRES_ADMIN_USER を .env に設定してください}
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:?POSTGRES_ADMIN_PASSWORD を .env に設定してください}
+      APP_DB_USER: ${DB_USER:?DB_USER を .env に設定してください}
+      APP_DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD を .env に設定してください}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./docker/initdb/01-create-app-user.sql:/docker-entrypoint-initdb.d/01-create-app-user.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d taskmanagement"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
