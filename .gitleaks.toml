@@ -1,0 +1,15 @@
+title = "TaskManagement gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "検査対象外"
+paths = [
+  '''(^|/)\.env$''',            # gitで追跡されないローカル専用ファイル
+  '''(^|/)node_modules/''',     # 依存関係（追跡対象外）
+  '''(^|/)dist/''',             # ビルド成果物（追跡対象外）
+  '''(^|/)\.env\.example$''',   # 値を空にしたテンプレート
+]
+# テストのダミー値は test- で始まるもののみ許可（テストファイル全体は除外しない）
+regexes = ['''test-[A-Za-z0-9_-]+''']

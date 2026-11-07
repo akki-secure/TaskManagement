@@ -41,6 +41,14 @@ Claude Code を使っている場合は、以下のスキルコマンド一つ�
 
 ### 手動起動
 
+#### 0. 環境変数の設定
+
+```bash
+cp .env.example .env   # 各値を設定する（JWT_SECRET は openssl rand -hex 32 で生成）
+```
+
+`.env` はコミットされません（`.gitignore` 済み）。
+
 #### 1. データベース（PostgreSQL）
 
 ```bash
@@ -88,7 +96,7 @@ http://localhost:5173
 ### psql でコンテナに入る
 
 ```bash
-docker exec -it taskmanagement-db psql -U <DBユーザー名> -d taskmanagement
+docker exec -it taskmanagement-db psql -U "$DB_USER" -d taskmanagement
 ```
 
 接続後は通常の SQL が使えます。
@@ -118,10 +126,10 @@ SELECT id, title, list_id, due_date, priority FROM cards ORDER BY list_id;
 | 項目 | 値 |
 |---|---|
 | ホスト | localhost |
-| ポート | 5432 |
+| ポート | `.env` の `DB_PORT`（既定 5432） |
 | データベース名 | taskmanagement |
-| ユーザー | 環境ごとの設定を参照（READMEには記載しない） |
-| パスワード | 環境ごとの設定を参照（READMEには記載しない） |
+| ユーザー | `.env` の `DB_USER` |
+| パスワード | `.env` の `DB_PASSWORD` |
 
 TablePlus・DBeaver などの GUI ツールでも上記の情報で接続できます。
 
