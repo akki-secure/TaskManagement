@@ -88,7 +88,7 @@ http://localhost:5173
 ### psql でコンテナに入る
 
 ```bash
-docker exec -it taskmanagement-db psql -U postgres -d taskmanagement
+docker exec -it taskmanagement-db psql -U <DBユーザー名> -d taskmanagement
 ```
 
 接続後は通常の SQL が使えます。
@@ -120,8 +120,8 @@ SELECT id, title, list_id, due_date, priority FROM cards ORDER BY list_id;
 | ホスト | localhost |
 | ポート | 5432 |
 | データベース名 | taskmanagement |
-| ユーザー | postgres |
-| パスワード | postgres |
+| ユーザー | 環境ごとの設定を参照（READMEには記載しない） |
+| パスワード | 環境ごとの設定を参照（READMEには記載しない） |
 
 TablePlus・DBeaver などの GUI ツールでも上記の情報で接続できます。
 
