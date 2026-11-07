@@ -143,10 +143,15 @@ TaskManagement/
 │   └── src/
 ├── backend/           # Spring Boot 3.4 + Java 21 + PostgreSQL（ポート 8080）
 │   └── src/
+├── infra/             # Terraform・デプロイスクリプト・nginx設定（AWS）
+├── docker/initdb/     # DB初期化SQL（アプリ専用ユーザー作成）
 ├── docker-compose.yml
+├── .env.example       # 環境変数のテンプレート（.env は未コミット）
+├── .gitleaks.toml     # シークレットスキャン設定
 └── docs/
 ```
 
+- 初回のみ: `cp .env.example .env` で値を設定（`.env` は絶対にコミットしない）
 - フロントエンド起動: `cd frontend && npm run dev`
 - バックエンド起動: `cd backend && ./gradlew bootRun`
 - DB起動: `docker compose up -d`
